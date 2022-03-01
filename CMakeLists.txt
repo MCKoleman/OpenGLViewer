@@ -1,4 +1,6 @@
-﻿# Copyright (C) 2018 Tomasz Gałaj
+﻿# CMake modified from:
+# Copyright (C) 2018 Tomasz Gałaj
+# MIT License
 
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 project("OpenGLWarmup")
@@ -30,6 +32,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 # LOOK for the packages that we need! #
 #######################################
 
+# GLEW
+#find_path(GLEW_INCLUDE_DIR GL/glew.h)
+#find_library(GLEW_LIBRARY NAMES GLEW glew32 glew glew32s PATH_SUFFIXES lib64)
+#find_package(GLEW CONFIG QUIET)
+
 # OpenGL
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
@@ -43,6 +50,7 @@ find_package(GLFW3 REQUIRED)
 message(STATUS "Found GLFW3 in ${GLFW3_INCLUDE_DIR}")
 
 # Put all libraries into a variable
+# Missing ${GLEW_LIBRARY}
 set(LIBS ${GLFW3_LIBRARY} ${OPENGL_LIBRARY} ${CMAKE_DL_LIBS})
 
 # Define the include DIRs
@@ -50,6 +58,8 @@ include_directories(
 	"${CMAKE_SOURCE_DIR}/src"
 	"${CMAKE_SOURCE_DIR}/include"
 	"${CMAKE_SOURCE_DIR}/include/glm"
+	"${CMAKE_SOURCE_DIR}/include/GL"
+	"${CMAKE_SOURCE_DIR}/include/GLFW"
 )
 
 # Define the link libraries
