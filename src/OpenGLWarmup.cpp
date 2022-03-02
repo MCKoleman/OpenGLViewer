@@ -103,8 +103,14 @@ int main()
     // End of linking shaders
 
 
+    // Read mesh
+    // ---------
+    Mesh* displayMesh = new Mesh();
+    ReadObjFromFile(displayMesh, "../models/", "al.obj");
+
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
+    /*
     float vertices[] = {
         -0.5f, -.25f, 0.0f, // left  
          0.5f, -.75f, 0.0f, // right 
@@ -114,7 +120,16 @@ int main()
          0.5f, -0.5f, 0.0f, // right 
          0.0f, -1.0f, 0.0f  // bottom
     };
-    unsigned int numVertices = sizeof(vertices) / 3;
+    */
+    
+    // Load up model into vertice structure
+    int vertsSize = displayMesh->GetVertCount() * 3;
+    float* vertices = new float[vertsSize];
+    displayMesh->SetSize(0.1f);
+    displayMesh->SetPos(glm::vec3(0.0f, 0.0f, 0.0f));
+    displayMesh->ConvertToVertData(vertices);
+
+    unsigned int numVertices = displayMesh->GetVertCount();
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -123,7 +138,7 @@ int main()
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertsSize, vertices, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -174,7 +189,9 @@ int main()
     // -----------------------------
     delete[] vertexShaderFile;
     delete[] fragmentShaderFile;
-
+    delete displayMesh;
+    delete[] vertices;
+    
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
@@ -196,35 +213,4 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
-}
-
-// Reads the shader at the given location to the given out string
-// Help reading file line by line from:
-// https://stackoverflow.com/questions/7868936/read-file-line-by-line-using-ifstream-in-c
-// --------------------------------------------------------------
-std::string ReadShader(std::string location) 
-{
-    std::string shader = "";
-
-    // Open the given file
-    std::ifstream file(location);
-    if (file.is_open())
-    {
-        // Read each individual line of the file
-        std::string line = "";
-        while (std::getline(file, line))
-        {
-            shader.append(line);
-            shader.append("\n");
-        }
-        shader.append("\0");
-        file.close();
-    }
-    // If the given file could not be found, print an error message
-    else
-    {
-        std::cout << "Error: Attempted to read shader at location [" << location << "], but no such file exists. Shader loading failed." << std::endl;
-    }
-
-    return shader;
 }
