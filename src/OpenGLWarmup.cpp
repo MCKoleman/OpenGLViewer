@@ -1,26 +1,8 @@
-﻿// template based on material from learnopengl.com
-#include "openGLInclude.h"
-#include <iostream>
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window);
+﻿#include "OpenGLWarmup.h"
 
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
-
-const char* vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
-const char* fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\n\0";
 
 int main()
 {
@@ -53,10 +35,20 @@ int main()
 
     // build and compile our shader program
     // ------------------------------------
+
+
     // vertex shader
+    // -------------
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+
+    // Load vertex shader from source.vs
+    std::string tempVertShader = ReadShader("../src/source.vs");
+    char* vertexShaderFile = new char[tempVertShader.size()+1];
+    strcpy(vertexShaderFile, tempVertShader.c_str());
+
+    glShaderSource(vertexShader, 1, &vertexShaderFile, NULL);
     glCompileShader(vertexShader);
+
     // check for shader compile errors
     int success;
     char infoLog[512];
@@ -66,10 +58,22 @@ int main()
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
+    // --------------------
+    // End of vertex shader
+
+
     // fragment shader
+    // ---------------
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+
+    // Load fragment shader from source.fs
+    std::string tempFragShader = ReadShader("../src/source.fs");
+    char* fragmentShaderFile = new char[tempFragShader.size() + 1];
+    strcpy(fragmentShaderFile, tempFragShader.c_str());
+
+    glShaderSource(fragmentShader, 1, &fragmentShaderFile, NULL);
     glCompileShader(fragmentShader);
+
     // check for shader compile errors
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success)
@@ -77,7 +81,12 @@ int main()
         glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
+    // ----------------------
+    // End of fragment shader
+
+
     // link shaders
+    // ------------
     unsigned int shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
@@ -90,6 +99,9 @@ int main()
     }
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+    // ----------------------
+    // End of linking shaders
+
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -158,6 +170,11 @@ int main()
     glDeleteBuffers(1, &VBO);
     glDeleteProgram(shaderProgram);
 
+    // Clear up dynamic memory usage
+    // -----------------------------
+    delete[] vertexShaderFile;
+    delete[] fragmentShaderFile;
+
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
@@ -179,4 +196,35 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
+}
+
+// Reads the shader at the given location to the given out string
+// Help reading file line by line from:
+// https://stackoverflow.com/questions/7868936/read-file-line-by-line-using-ifstream-in-c
+// --------------------------------------------------------------
+std::string ReadShader(std::string location) 
+{
+    std::string shader = "";
+
+    // Open the given file
+    std::ifstream file(location);
+    if (file.is_open())
+    {
+        // Read each individual line of the file
+        std::string line = "";
+        while (std::getline(file, line))
+        {
+            shader.append(line);
+            shader.append("\n");
+        }
+        shader.append("\0");
+        file.close();
+    }
+    // If the given file could not be found, print an error message
+    else
+    {
+        std::cout << "Error: Attempted to read shader at location [" << location << "], but no such file exists. Shader loading failed." << std::endl;
+    }
+
+    return shader;
 }

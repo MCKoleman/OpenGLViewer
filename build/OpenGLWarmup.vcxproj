@@ -365,6 +365,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\mesh.h" />
+    <ClInclude Include="..\src\triangle.h" />
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\OpenGLWarmup.h" />
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\openGLInclude.h" />
     <ClCompile Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\OpenGLWarmup.cpp" />
@@ -376,6 +378,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\source.fs" />
+    <None Include="..\src\source.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
