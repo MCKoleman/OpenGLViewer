@@ -103,10 +103,30 @@ int main()
     // End of linking shaders
 
 
+    // Read Options
+    // ------------
+    Options options = ReadOptions("../config.txt");
+
     // Read mesh
     // ---------
-    Mesh* displayMesh = new Mesh();
-    ReadObjFromFile(displayMesh, "../models/", "al.obj");
+    IMesh* imesh;
+    SMesh* smesh;
+    Mesh* displayMesh;
+
+    // Cast the mesh
+    if (options.vertexModel == 1) {
+        imesh = new IMesh();
+        displayMesh = imesh;
+    }
+    else {
+        smesh = new SMesh();
+        displayMesh = smesh;
+    }
+
+    // Set default color
+    displayMesh->defaultMat = options.defaultColor;
+
+    ReadObjFromFile(displayMesh, "../models/", options.objName);
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -121,27 +141,63 @@ int main()
          0.0f, -1.0f, 0.0f  // bottom
     };
     */
+
+    displayMesh->SetSize(options.objScale * displayMesh->GetSize());
+    displayMesh->SetPos(options.objPos);
     
-    // Load up model into vertice structure
-    int vertsSize = displayMesh->GetVertCount() * 3;
-    float* vertices = new float[vertsSize];
-    displayMesh->SetSize(0.1f);
-    displayMesh->SetPos(glm::vec3(0.0f, 0.0f, 0.0f));
-    displayMesh->ConvertToVertData(vertices);
+    // Load up model into vertice and indice structures
+    int vertsSize;
+    float* vertices;
+    int indicesSize;
+    unsigned int* indices;
+    unsigned int numVertices;
 
-    unsigned int numVertices = displayMesh->GetVertCount();
+    // Indexed triangle structure
+    if (options.vertexModel == 1) {
+        // Get vertices
+        vertsSize = imesh->GetVertCount() * 6;
+        vertices = new float[vertsSize];
+        imesh->ConvertToVertData(vertices);
 
-    unsigned int VBO, VAO;
+        // Get indices
+        indicesSize = imesh->GetIndexCount() * 3;
+        indices = new unsigned int[indicesSize];
+        imesh->ConvertToIndexData(indices);
+
+        numVertices = displayMesh->GetVertCount();
+    }
+    // Separate triangle structure
+    else {
+        // Get vertices
+        vertsSize = smesh->GetVertCount() * 6;
+        vertices = new float[vertsSize];
+        smesh->ConvertToVertData(vertices);
+
+        numVertices = displayMesh->GetVertCount();
+    }
+
+    unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
     // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertsSize, vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    // Only use EBO for indexed vertex model
+    if (options.vertexModel == 1) {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indices, GL_STATIC_DRAW);
+    }
+
+    // Position
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    // Color
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -152,7 +208,9 @@ int main()
 
 
     // uncomment this call to draw in wireframe polygons.
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    if (options.wireframe == 1) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
 
     // render loop
     // -----------
@@ -160,11 +218,13 @@ int main()
     {
         // input
         // -----
-        processInput(window);
+        if (processInput(window)) {
+            // Update window
+        }
 
         // render
         // ------
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.95f, 0.95f, 0.95f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         // draw our first triangle
@@ -189,8 +249,17 @@ int main()
     // -----------------------------
     delete[] vertexShaderFile;
     delete[] fragmentShaderFile;
-    delete displayMesh;
     delete[] vertices;
+
+    // Only delete what was initialized
+    if (options.vertexModel == 1) {
+        glDeleteBuffers(1, &EBO);
+        delete imesh;
+        delete[] indices;
+    }
+    else {
+        delete smesh;
+    }
     
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
@@ -200,10 +269,40 @@ int main()
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow* window)
+bool processInput(GLFWwindow* window)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
+        return true;
+    }
+    // Move forward
+    else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        return true;
+    }
+    // Move back
+    else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        return true;
+    }
+    // Move right
+    else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        return true;
+    }
+    // Move left
+    else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        return true;
+    }
+    // Move up
+    else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        return true;
+    }
+    // Move down
+    else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+        return true;
+    }
+    // If nothing else was pressed, do nothing
+    else {
+        return false;
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

@@ -1,0 +1,17 @@
+# Which object should be loaded by the program
+object = al.obj
+
+# Scale of the object in the program
+scale = 0.6
+
+# Position of the object in the program
+position = 0.0 0.0 0.0
+
+# Default color
+dcolor = 0.8 0.8 0.8
+
+# Vertex model [0] separate, [1] indexed
+vertexmodel = 0
+
+# Should model be drawn in wireframe? [0] No, [1] Yes
+wireframe = 0

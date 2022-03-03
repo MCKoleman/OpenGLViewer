@@ -52,7 +52,6 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
     // Map of materials
     std::unordered_map<std::string, Material> tempMaterials;
 
-
     // Read Object
     // -------------
 
@@ -320,11 +319,43 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
 
     // Clear previous mesh
     mesh->ClearTris();
-    
+
+    // Build faces from vertices
+    // Build indexed mesh
+    if (mesh->GetVertexModel() == 1) {
+        IMesh* imesh = static_cast<IMesh*>(mesh);
+        BuildIMesh(imesh, tempFaces, tempMaterials, tempVerts, tempVertNorms, tempVertTexts);
+    }
+    // Build separate mesh
+    else {
+        SMesh* smesh = static_cast<SMesh*>(mesh);
+        BuildSMesh(smesh, tempFaces, tempMaterials, tempVerts, tempVertNorms, tempVertTexts);
+    }
+
+    // Find the maximum size of vertices
+    float maxSize = INT_MIN;
+    for (int i = 0; i < tempVerts.size(); i++) {
+        if (tempVerts[i].x > maxSize)
+            maxSize = tempVerts[i].x;
+        if (tempVerts[i].y > maxSize)
+            maxSize = tempVerts[i].y;
+        if (tempVerts[i].z > maxSize)
+            maxSize = tempVerts[i].z;
+    }
+
+    mesh->SetSize(1 / maxSize);
+
+    std::cout << "Successfully read object: " << fileName << "." << std::endl;
+}
+
+// Builds a separate triangle structure mesh from the provided data
+void BuildSMesh(SMesh* smesh, std::vector<FaceData>& tempFaces, std::unordered_map<std::string, Material>& tempMaterials,
+    std::vector<glm::vec3>& tempVerts, std::vector<glm::vec3>& tempVertNorms, std::vector<glm::vec3>& tempVertTexts)
+{
     // Build faces from vertices
     for (int faceIndex = 0; faceIndex < tempFaces.size(); faceIndex++) {
         FaceData faceData = tempFaces[faceIndex];
-        Material currentMat = defaultMaterial;
+        Material currentMat = smesh->defaultMat;
         std::vector<Vertex> faceVertices;
 
         for (int vertexIndex = 0; vertexIndex < faceData.vertexInfo.size(); vertexIndex++) {
@@ -366,24 +397,102 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
 
         // If the face is not an ngon, create a triangle from it
         if (faceVertices.size() == 3) {
-            mesh->AddTri(Triangle(faceVertices[0], faceVertices[1], faceVertices[2], currentMat, faceData.shadingGroup));
+            smesh->AddTri(STriangle(faceVertices[0], faceVertices[1], faceVertices[2], currentMat, faceData.shadingGroup));
         }
         // If the face is a quad, split it into two tris
         else if (faceVertices.size() == 4) {
-            mesh->AddTri(Triangle(faceVertices[0], faceVertices[1], faceVertices[2], currentMat, faceData.shadingGroup));
-            mesh->AddTri(Triangle(faceVertices[2], faceVertices[3], faceVertices[0], currentMat, faceData.shadingGroup));
+            smesh->AddTri(STriangle(faceVertices[0], faceVertices[1], faceVertices[2], currentMat, faceData.shadingGroup));
+            smesh->AddTri(STriangle(faceVertices[2], faceVertices[3], faceVertices[0], currentMat, faceData.shadingGroup));
         }
         // If the face is an ngon, apply polygon triangulation and then add the tris to the mesh
         else if (faceVertices.size() > 4) {
             // Simple triangulation model that does not take into account ngon shape or manifoldness
             for (int i = 1; i < faceVertices.size() - 1; i++) {
-                mesh->AddTri(Triangle(faceVertices[0], faceVertices[i], faceVertices[i+1], currentMat, faceData.shadingGroup));
+                smesh->AddTri(STriangle(faceVertices[0], faceVertices[i], faceVertices[i + 1], currentMat, faceData.shadingGroup));
+            }
+        }
+        // Skip lines and points as they cannot be rendered
+    }
+}
+
+// Builds an indexed triangle mesh from the provided data
+void BuildIMesh(IMesh* imesh, std::vector<FaceData>& tempFaces, std::unordered_map<std::string, Material>& tempMaterials,
+    std::vector<glm::vec3>& tempVerts, std::vector<glm::vec3>& tempVertNorms, std::vector<glm::vec3>& tempVertTexts)
+{
+    // Keep a top level dictionary of all vertex definitions
+    std::vector<IndVertex> vertexDefs;
+
+    // Build faces from vertices
+    for (int faceIndex = 0; faceIndex < tempFaces.size(); faceIndex++) {
+        FaceData faceData = tempFaces[faceIndex];
+        Material currentMat = imesh->defaultMat;
+        std::vector<IndVertex> faceVertices;
+
+        for (int vertexIndex = 0; vertexIndex < faceData.vertexInfo.size(); vertexIndex++) {
+            std::vector<int> vertex = faceData.vertexInfo[vertexIndex];
+
+            // Store vertex info
+            glm::vec3 vertCoord = glm::vec3();
+            glm::vec3 vertNorm = glm::vec3();
+            glm::vec3 vertText = glm::vec3();
+
+            // Collect info
+            int tempVertCoord = -1;
+            for (int infoIndex = 0; infoIndex < vertex.size(); infoIndex++) {
+                // Skip invalid indices
+                int tempIndex = vertex[infoIndex] - 1;
+                if (tempIndex < 0)
+                    continue;
+
+                // Get vertex information from the respective arrays
+                if (infoIndex == 0) {
+                    vertCoord = tempVerts[tempIndex];
+                    tempVertCoord = tempIndex;
+                }
+                else if (infoIndex == 1) {
+                    vertText = tempVertTexts[tempIndex];
+                }
+                else if (infoIndex == 2) {
+                    vertNorm = tempVertNorms[tempIndex];
+                }
+            }
+
+            // Create new vertex
+            IndVertex iVer = IndVertex(tempVertCoord, Vertex(vertCoord, vertNorm, vertText));
+            faceVertices.push_back(iVer);
+            vertexDefs.push_back(iVer);
+        }
+
+        // Get face material
+        std::unordered_map<std::string, Material>::iterator iter = tempMaterials.find(faceData.matName);
+        if (iter != tempMaterials.end()) {
+            currentMat = iter->second;
+        }
+
+        // If the face is not an ngon, create a triangle from it
+        if (faceVertices.size() == 3) {
+            imesh->AddTri(ITriangle(faceVertices[0].id, faceVertices[1].id, faceVertices[2].id, currentMat, faceData.shadingGroup));
+        }
+        // If the face is a quad, split it into two tris
+        else if (faceVertices.size() == 4) {
+            imesh->AddTri(ITriangle(faceVertices[0].id, faceVertices[1].id, faceVertices[2].id, currentMat, faceData.shadingGroup));
+            imesh->AddTri(ITriangle(faceVertices[2].id, faceVertices[3].id, faceVertices[0].id, currentMat, faceData.shadingGroup));
+        }
+        // If the face is an ngon, apply polygon triangulation and then add the tris to the mesh
+        else if (faceVertices.size() > 4) {
+            // Simple triangulation model that does not take into account ngon shape or manifoldness
+            for (int i = 1; i < faceVertices.size() - 1; i++) {
+                imesh->AddTri(ITriangle(faceVertices[0].id, faceVertices[i].id, faceVertices[i + 1].id, currentMat, faceData.shadingGroup));
             }
         }
         // Skip lines and points as they cannot be rendered
     }
 
-    std::cout << "Successfully read object: " << fileName << "." << std::endl;
+    // Fill up vertex definition of mesh
+    for (int i = 0; i < vertexDefs.size(); i++) {
+        imesh->AddVert(vertexDefs[i].id, vertexDefs[i].ver);
+    }
+
 }
 
 // Help parsing a string by token from:
@@ -414,4 +523,72 @@ glm::vec3 ReadVec3FromStrings(std::vector<std::string>& strings)
         return glm::vec3(std::stof(strings[1]), std::stof(strings[2]), std::stof(strings[3]));
     else
         return glm::vec3();
+}
+
+// Reads the options file at the given position
+Options ReadOptions(std::string fileName)
+{
+    Options options = Options();
+
+    // Open the given file
+    std::ifstream file(fileName);
+    if (file.is_open())
+    {
+        // Read each individual line of the file
+        std::string line = "";
+        while (std::getline(file, line))
+        {
+            // Store parsed data
+            std::vector<std::string> tempParse;
+            ParseStringByDelim(tempParse, line, " ");
+
+            // Parse stored data
+            // If only 0 or 1 tokens are stored, the line has no significance
+            // Only interpret lines with more than 2 tokens, skipping equals sign
+            if (tempParse.size() > 2) {
+                // Check for comment
+                if (tempParse[0] == "#") {
+                    // Skip comments
+                }
+                // Check for object setting
+                else if (tempParse[0] == "object") {
+                    options.objName = tempParse[2];
+                }
+                // Check for scale setting
+                else if (tempParse[0] == "scale") {
+                    options.objScale = std::stof(tempParse[2]);
+                }
+                // Check for position setting
+                else if (tempParse[0] == "position") {
+                    // Only read position if there are more than 5 elements (pos = x y z)
+                    if (tempParse.size() >= 5) {
+                        options.objPos = glm::vec3(std::stof(tempParse[2]), std::stof(tempParse[3]), std::stof(tempParse[4]));
+                    }
+                    else {
+                        std::cout << "Options file does not have a valid position. Defaulting to 0" << std::endl;
+                    }
+                }
+                // Check for default color
+                else if (tempParse[0] == "dcolor") {
+                    options.defaultColor = Material(glm::vec3(0, 0, 0), glm::vec3(std::stof(tempParse[2]), std::stof(tempParse[3]), std::stof(tempParse[4])));
+                }
+                // Check for vertex model setting
+                else if (tempParse[0] == "vertexmodel") {
+                    options.vertexModel = std::stoi(tempParse[2]);
+                }
+                // Check for wireframe
+                else if (tempParse[0] == "wireframe") {
+                    options.wireframe = std::stoi(tempParse[2]);
+                }
+            }
+        }
+        file.close();
+    }
+    // If the given file could not be found, print an error message
+    else
+    {
+        std::cout << "Error: Attempted to read config at location [" << fileName << "], but no such file exists. Config loading failed." << std::endl;
+    }
+
+    return options;
 }
