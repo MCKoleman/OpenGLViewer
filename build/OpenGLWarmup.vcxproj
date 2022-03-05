@@ -366,6 +366,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\fileHelper.h" />
+    <ClInclude Include="..\src\indexStructs.h" />
     <ClInclude Include="..\src\material.h" />
     <ClInclude Include="..\src\mesh.h" />
     <ClInclude Include="..\src\meshModel.h" />
@@ -374,6 +375,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\OpenGLWarmup.h" />
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\openGLInclude.h" />
     <ClCompile Include="..\src\fileHelper.cpp" />
+    <ClCompile Include="..\src\indexStructs.cpp" />
     <ClCompile Include="..\src\material.cpp" />
     <ClCompile Include="..\src\mesh.cpp" />
     <ClCompile Include="..\src\meshModel.cpp" />

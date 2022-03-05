@@ -20,11 +20,11 @@ void SMesh::ConvertToVertData(float out[])
 			outIndex++;
 
 			// Color
-			out[outIndex] = glm::clamp(vertColor.x + (i % 3), 0.0f, 1.0f);
+			out[outIndex] = glm::clamp(vertColor.x + 1 - (i % 3), 0.0f, 1.0f);
 			outIndex++;
-			out[outIndex] = glm::clamp(vertColor.y + ((i + 1) % 3), 0.0f, 1.0f);
+			out[outIndex] = glm::clamp(vertColor.y + 1 - ((i + 1) % 3), 0.0f, 1.0f);
 			outIndex++;
-			out[outIndex] = glm::clamp(vertColor.z + ((i + 2) % 3), 0.0f, 1.0f);
+			out[outIndex] = glm::clamp(vertColor.z + 1 - ((i + 2) % 3), 0.0f, 1.0f);
 			outIndex++;
 		}
 	}
@@ -66,7 +66,7 @@ void IMesh::ConvertToVertData(float out[])
 {
 	// Track out indices separate from loop
 	size_t outIndex = 0;
-	for (int i = 0; i < verts.size(); i++) {
+	for (int i = 1; i < lastVertIndex; i++) {
 		glm::vec3 vertPos = verts[i].pos * size;
 		out[outIndex] = vertPos.x + pos.x;
 		outIndex++;
@@ -76,11 +76,11 @@ void IMesh::ConvertToVertData(float out[])
 		outIndex++;
 
 		// Color
-		out[outIndex] = glm::clamp((float)(i % 3), 0.0f, 1.0f);
+		out[outIndex] = glm::clamp((float)(1 - i % 3), 0.0f, 1.0f);
 		outIndex++;
-		out[outIndex] = glm::clamp((float)((i + 1) % 3), 0.0f, 1.0f);
+		out[outIndex] = glm::clamp((float)(1 - (i + 1) % 3), 0.0f, 1.0f);
 		outIndex++;
-		out[outIndex] = glm::clamp((float)((i + 2) % 3), 0.0f, 1.0f);
+		out[outIndex] = glm::clamp((float)(1 - (i + 2) % 3), 0.0f, 1.0f);
 		outIndex++;
 	}
 }

@@ -106,6 +106,7 @@ int main()
     // Read Options
     // ------------
     Options options = ReadOptions("../config.txt");
+    bool isIndexed = options.vertexModel == 1;
 
     // Read mesh
     // ---------
@@ -114,7 +115,7 @@ int main()
     Mesh* displayMesh;
 
     // Cast the mesh
-    if (options.vertexModel == 1) {
+    if (isIndexed) {
         imesh = new IMesh();
         displayMesh = imesh;
     }
@@ -153,14 +154,14 @@ int main()
     unsigned int numVertices;
 
     // Indexed triangle structure
-    if (options.vertexModel == 1) {
+    if (isIndexed) {
         // Get vertices
-        vertsSize = imesh->GetVertCount() * 6;
+        vertsSize = imesh->GetVertCount() * 2;
         vertices = new float[vertsSize];
         imesh->ConvertToVertData(vertices);
 
         // Get indices
-        indicesSize = imesh->GetIndexCount() * 3;
+        indicesSize = imesh->GetIndexCount();
         indices = new unsigned int[indicesSize];
         imesh->ConvertToIndexData(indices);
 
@@ -176,6 +177,11 @@ int main()
         numVertices = displayMesh->GetVertCount();
     }
 
+    // Print vertices and indices
+    //PrintArray("Printing vertices:", vertices, vertsSize, 6);
+    //if(isIndexed)
+    //    PrintArray("Printing indices:", indices, indicesSize, 6);
+
     unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -187,7 +193,7 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, vertsSize, vertices, GL_STATIC_DRAW);
 
     // Only use EBO for indexed vertex model
-    if (options.vertexModel == 1) {
+    if (isIndexed) {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indices, GL_STATIC_DRAW);
     }
@@ -206,6 +212,11 @@ int main()
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
     glBindVertexArray(0);
 
+    // Enable culling
+    glDisable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
+    //glCullFace(GL_BACK);
+    //glFrontFace(GL_CCW);
 
     // uncomment this call to draw in wireframe polygons.
     if (options.wireframe == 1) {
@@ -229,8 +240,19 @@ int main()
 
         // draw our first triangle
         glUseProgram(shaderProgram);
-        glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-        glDrawArrays(GL_TRIANGLES, 0, numVertices);
+        glBindVertexArray(VAO);
+        
+        // Draw indexed EBO
+        if (isIndexed) {
+            glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, 0);
+            //glBindVertexArray(0);
+        }
+        // Draw separate VAO
+        else {
+            glDrawArrays(GL_TRIANGLES, 0, numVertices);
+        }
+
+
         // glBindVertexArray(0); // unbind our VA no need to unbind it every time 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -252,7 +274,7 @@ int main()
     delete[] vertices;
 
     // Only delete what was initialized
-    if (options.vertexModel == 1) {
+    if (isIndexed) {
         glDeleteBuffers(1, &EBO);
         delete imesh;
         delete[] indices;

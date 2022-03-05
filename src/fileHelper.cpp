@@ -40,13 +40,15 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
 
     // Generate vectors to store all data
     // Vector of vertices, which are a point
-    std::vector<glm::vec3> tempVerts;
+    std::vector<IndVec3> vertPosList;
     // Vector of vertex normals, which are a vec3
-    std::vector<glm::vec3> tempVertNorms;
+    std::vector<IndVec3> vertNormList;
     // Vector of vertex textures, which are a vec3
-    std::vector<glm::vec3> tempVertTexts;
+    std::vector<IndVec3> vertTextList;
+    // Vector of vertices
+    std::vector<IndVertex> builtVertexList;
     // Vector of faces, which are vectors of verts, which are vectors of potentially vert info, texture info, and normal info
-    std::vector<FaceData> tempFaces;
+    std::vector<FaceData> faceDataList;
     // Map of groups, with name tag and a vector of face indices
     std::unordered_map<std::string, std::vector<int>> tempGroups;
     // Map of materials
@@ -63,7 +65,12 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
         std::string curGroup = "";
         std::string curMaterial = "";
         int curShadingGroup = 0;
-        int curFaceIndex = 0;
+
+        // Index info
+        int curVertIndex = 1;
+        int curVertNormIndex = 1;
+        int curVertTextIndex = 1;
+        int curFaceIndex = 1;
 
         // Read each individual line of the file
         std::string line = "";
@@ -110,7 +117,8 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
                 else if (tempParse[0] == "v") {
                     // Don't read an incomplete vertex
                     if (tempParse.size() >= 4) {
-                        tempVerts.push_back(ReadVec3FromStrings(tempParse));
+                        vertPosList.push_back(IndVec3(curVertIndex, ReadVec3FromStrings(tempParse)));
+                        curVertIndex++;
                     }
                 }
 
@@ -118,7 +126,8 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
                 else if (tempParse[0] == "vn") {
                     // Don't read an incomplete normal
                     if (tempParse.size() >= 4) {
-                        tempVertNorms.push_back(ReadVec3FromStrings(tempParse));
+                        vertNormList.push_back(IndVec3(curVertNormIndex, ReadVec3FromStrings(tempParse)));
+                        curVertNormIndex++;
                     }
                 }
 
@@ -138,13 +147,14 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
                         _w = std::stof(tempParse[3]);
 
                     // Store results
-                    tempVertTexts.push_back(glm::vec3(_u, _v, _w));
+                    vertTextList.push_back(IndVec3(curVertTextIndex, glm::vec3(_u, _v, _w)));
+                    curVertTextIndex++;
                 }
 
                 // Check if line is a face
                 else if (tempParse[0] == "f") {
                     // Create a temporary face to store info into
-                    std::vector<std::vector<int>> tempFace;
+                    std::vector<IndVertex> tempFace;
 
                     // Loop through the parse array and evaluate each vertex
                     for (int i = 1; i < tempParse.size(); i++) {
@@ -153,6 +163,7 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
 
                         // Add all vertex data to the face (up to a max of 3 elements: coord, texture, normal)
                         std::vector<int> tempFaceVertData;
+                        int vertPosIndex = -1;
                         for (int j = 0; j < std::min((int)tempFaceData.size(), 3); j++) {
                             // If the face vertex data is not empty, store it as an int
                             if (tempFaceData[j] != "") {
@@ -163,11 +174,37 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
                                 tempFaceVertData.push_back(-1);
                             }
                         }
-                        tempFace.push_back(tempFaceVertData);
+
+                        //
+                        if (tempFaceVertData.size() > 0) {
+                            vertPosIndex = tempFaceVertData[0];
+                        }
+
+                        // Find vertex
+                        int vertIndex = FindVertIndex(builtVertexList, vertPosIndex);
+                        if (vertIndex < 0 && vertPosIndex >= 0) {
+                            glm::vec3 vertPos = glm::vec3();
+                            glm::vec3 vertNorm = glm::vec3();
+                            glm::vec3 vertText = glm::vec3();
+
+                            if (tempFaceVertData.size() > 0)
+                                vertPos = FindVert(vertPosList, tempFaceVertData[0]).pos;
+                            if(tempFaceVertData.size() > 1)
+                                vertNorm = FindVert(vertNormList, tempFaceVertData[1]).pos;
+                            if (tempFaceVertData.size() > 2)
+                                vertText = FindVert(vertTextList, tempFaceVertData[2]).pos;
+
+                            Vertex newVert = Vertex(vertPos, vertNorm, vertText);
+                            builtVertexList.push_back(IndVertex(vertPosIndex, newVert));
+                        }
+
+                        vertIndex = FindVertIndex(builtVertexList, tempFaceVertData[0]);
+                        if(vertIndex >= 0)
+                            tempFace.push_back(IndVertex(builtVertexList[vertIndex]));
                     }
 
                     // Push face to the face storage
-                    tempFaces.push_back(FaceData(tempFace, curMaterial, curShadingGroup));
+                    faceDataList.push_back(FaceData(tempFace, curMaterial, curShadingGroup, curFaceIndex));
 
                     // Add face index to its group
                     std::unordered_map<std::string, std::vector<int>>::iterator iter = tempGroups.find(curGroup);
@@ -194,7 +231,9 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
                     if (iter != tempGroups.end()) {
                         // Set the material of each face in the group to the selected material
                         for (int i = 0; i < iter->second.size(); i++) {
-                            tempFaces[iter->second[i]].matName = curMaterial;
+                            int faceIndex = FindFaceIndex(faceDataList, iter->second[i]);
+                            if(faceIndex >= 0)
+                                faceDataList[faceIndex].matName = curMaterial;
                         }
                     }
                 }
@@ -307,9 +346,10 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
 
     // Construct mesh
     // --------------
-    //vector<vec3> tempVerts;
-    //vector<vec3> tempVertNorms;
-    //vector<vec3> tempVertTexts;
+    //vector<IndVec3> tempVertPositions;
+    //vector<IndVec3> tempVertNorms;
+    //vector<IndVec3> tempVertTexts;
+    //vector<IndVertex> tempVertices;
     //vector<FaceData> tempFaces;
     //unordered_map<string, vector<int>> tempGroups;
     //unordered_map<string, Material> tempMaterials;
@@ -324,23 +364,23 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
     // Build indexed mesh
     if (mesh->GetVertexModel() == 1) {
         IMesh* imesh = static_cast<IMesh*>(mesh);
-        BuildIMesh(imesh, tempFaces, tempMaterials, tempVerts, tempVertNorms, tempVertTexts);
+        BuildIMesh(imesh, faceDataList, tempMaterials, builtVertexList);
     }
     // Build separate mesh
     else {
         SMesh* smesh = static_cast<SMesh*>(mesh);
-        BuildSMesh(smesh, tempFaces, tempMaterials, tempVerts, tempVertNorms, tempVertTexts);
+        BuildSMesh(smesh, faceDataList, tempMaterials, builtVertexList);
     }
 
     // Find the maximum size of vertices
     float maxSize = INT_MIN;
-    for (int i = 0; i < tempVerts.size(); i++) {
-        if (tempVerts[i].x > maxSize)
-            maxSize = tempVerts[i].x;
-        if (tempVerts[i].y > maxSize)
-            maxSize = tempVerts[i].y;
-        if (tempVerts[i].z > maxSize)
-            maxSize = tempVerts[i].z;
+    for (int i = 0; i < vertPosList.size(); i++) {
+        if (vertPosList[i].pos.x > maxSize)
+            maxSize = vertPosList[i].pos.x;
+        if (vertPosList[i].pos.y > maxSize)
+            maxSize = vertPosList[i].pos.y;
+        if (vertPosList[i].pos.z > maxSize)
+            maxSize = vertPosList[i].pos.z;
     }
 
     mesh->SetSize(1 / maxSize);
@@ -349,8 +389,7 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
 }
 
 // Builds a separate triangle structure mesh from the provided data
-void BuildSMesh(SMesh* smesh, std::vector<FaceData>& tempFaces, std::unordered_map<std::string, Material>& tempMaterials,
-    std::vector<glm::vec3>& tempVerts, std::vector<glm::vec3>& tempVertNorms, std::vector<glm::vec3>& tempVertTexts)
+void BuildSMesh(SMesh* smesh, std::vector<FaceData>& tempFaces, std::unordered_map<std::string, Material>& tempMaterials, std::vector<IndVertex>& tempVertices)
 {
     // Build faces from vertices
     for (int faceIndex = 0; faceIndex < tempFaces.size(); faceIndex++) {
@@ -359,34 +398,10 @@ void BuildSMesh(SMesh* smesh, std::vector<FaceData>& tempFaces, std::unordered_m
         std::vector<Vertex> faceVertices;
 
         for (int vertexIndex = 0; vertexIndex < faceData.vertexInfo.size(); vertexIndex++) {
-            std::vector<int> vertex = faceData.vertexInfo[vertexIndex];
-
-            // Store vertex info
-            glm::vec3 vertCoord = glm::vec3();
-            glm::vec3 vertNorm = glm::vec3();
-            glm::vec3 vertText = glm::vec3();
-
-            // Collect info
-            for (int infoIndex = 0; infoIndex < vertex.size(); infoIndex++) {
-                // Skip invalid indices
-                int tempIndex = vertex[infoIndex] - 1;
-                if (tempIndex < 0)
-                    continue;
-
-                // Get vertex information from the respective arrays
-                if (infoIndex == 0) {
-                    vertCoord = tempVerts[tempIndex];
-                }
-                else if (infoIndex == 1) {
-                    vertText = tempVertTexts[tempIndex];
-                }
-                else if (infoIndex == 2) {
-                    vertNorm = tempVertNorms[tempIndex];
-                }
-            }
+            IndVertex vertex = faceData.vertexInfo[vertexIndex];
 
             // Create new vertex
-            faceVertices.push_back(Vertex(vertCoord, vertNorm, vertText));
+            faceVertices.push_back(vertex.ver);
         }
 
         // Get face material
@@ -397,18 +412,18 @@ void BuildSMesh(SMesh* smesh, std::vector<FaceData>& tempFaces, std::unordered_m
 
         // If the face is not an ngon, create a triangle from it
         if (faceVertices.size() == 3) {
-            smesh->AddTri(STriangle(faceVertices[0], faceVertices[1], faceVertices[2], currentMat, faceData.shadingGroup));
+            smesh->AddTri(STriangle(faceVertices[2], faceVertices[1], faceVertices[0], currentMat, faceData.shadingGroup));
         }
         // If the face is a quad, split it into two tris
         else if (faceVertices.size() == 4) {
-            smesh->AddTri(STriangle(faceVertices[0], faceVertices[1], faceVertices[2], currentMat, faceData.shadingGroup));
-            smesh->AddTri(STriangle(faceVertices[2], faceVertices[3], faceVertices[0], currentMat, faceData.shadingGroup));
+            smesh->AddTri(STriangle(faceVertices[2], faceVertices[1], faceVertices[0], currentMat, faceData.shadingGroup));
+            smesh->AddTri(STriangle(faceVertices[0], faceVertices[3], faceVertices[2], currentMat, faceData.shadingGroup));
         }
         // If the face is an ngon, apply polygon triangulation and then add the tris to the mesh
         else if (faceVertices.size() > 4) {
             // Simple triangulation model that does not take into account ngon shape or manifoldness
             for (int i = 1; i < faceVertices.size() - 1; i++) {
-                smesh->AddTri(STriangle(faceVertices[0], faceVertices[i], faceVertices[i + 1], currentMat, faceData.shadingGroup));
+                smesh->AddTri(STriangle(faceVertices[i + 1], faceVertices[i], faceVertices[0], currentMat, faceData.shadingGroup));
             }
         }
         // Skip lines and points as they cannot be rendered
@@ -416,12 +431,8 @@ void BuildSMesh(SMesh* smesh, std::vector<FaceData>& tempFaces, std::unordered_m
 }
 
 // Builds an indexed triangle mesh from the provided data
-void BuildIMesh(IMesh* imesh, std::vector<FaceData>& tempFaces, std::unordered_map<std::string, Material>& tempMaterials,
-    std::vector<glm::vec3>& tempVerts, std::vector<glm::vec3>& tempVertNorms, std::vector<glm::vec3>& tempVertTexts)
+void BuildIMesh(IMesh* imesh, std::vector<FaceData>& tempFaces, std::unordered_map<std::string, Material>& tempMaterials, std::vector<IndVertex>& tempVertices)
 {
-    // Keep a top level dictionary of all vertex definitions
-    std::vector<IndVertex> vertexDefs;
-
     // Build faces from vertices
     for (int faceIndex = 0; faceIndex < tempFaces.size(); faceIndex++) {
         FaceData faceData = tempFaces[faceIndex];
@@ -429,38 +440,10 @@ void BuildIMesh(IMesh* imesh, std::vector<FaceData>& tempFaces, std::unordered_m
         std::vector<IndVertex> faceVertices;
 
         for (int vertexIndex = 0; vertexIndex < faceData.vertexInfo.size(); vertexIndex++) {
-            std::vector<int> vertex = faceData.vertexInfo[vertexIndex];
+            IndVertex vertex = faceData.vertexInfo[vertexIndex];
 
-            // Store vertex info
-            glm::vec3 vertCoord = glm::vec3();
-            glm::vec3 vertNorm = glm::vec3();
-            glm::vec3 vertText = glm::vec3();
-
-            // Collect info
-            int tempVertCoord = -1;
-            for (int infoIndex = 0; infoIndex < vertex.size(); infoIndex++) {
-                // Skip invalid indices
-                int tempIndex = vertex[infoIndex] - 1;
-                if (tempIndex < 0)
-                    continue;
-
-                // Get vertex information from the respective arrays
-                if (infoIndex == 0) {
-                    vertCoord = tempVerts[tempIndex];
-                    tempVertCoord = tempIndex;
-                }
-                else if (infoIndex == 1) {
-                    vertText = tempVertTexts[tempIndex];
-                }
-                else if (infoIndex == 2) {
-                    vertNorm = tempVertNorms[tempIndex];
-                }
-            }
-
-            // Create new vertex
-            IndVertex iVer = IndVertex(tempVertCoord, Vertex(vertCoord, vertNorm, vertText));
-            faceVertices.push_back(iVer);
-            vertexDefs.push_back(iVer);
+            faceVertices.push_back(vertex);
+            imesh->AddVert(vertex.id, vertex.ver);
         }
 
         // Get face material
@@ -487,12 +470,6 @@ void BuildIMesh(IMesh* imesh, std::vector<FaceData>& tempFaces, std::unordered_m
         }
         // Skip lines and points as they cannot be rendered
     }
-
-    // Fill up vertex definition of mesh
-    for (int i = 0; i < vertexDefs.size(); i++) {
-        imesh->AddVert(vertexDefs[i].id, vertexDefs[i].ver);
-    }
-
 }
 
 // Help parsing a string by token from:
@@ -591,4 +568,62 @@ Options ReadOptions(std::string fileName)
     }
 
     return options;
+}
+
+// Prints the given array
+void PrintArray(std::string startText, float arr[], int n, int elemsPerLine)
+{
+    using namespace std;
+    cout << startText << endl;
+    cout << "Size: " << n << endl;
+
+    cout << fixed << setprecision(3);
+
+    // Print every element in the array
+    for (int i = 0; i < n; i++) {
+        // Print index on first line
+        if (i % elemsPerLine == 0)
+            cout << "[" << (int)(i / 6) << "] ";
+
+        // Print element
+        cout << "(" << arr[i] << ")";
+
+        // Swap rows every elemsPerLine
+        if ((i + 1) % elemsPerLine == 0)
+            cout << endl;
+        // Otherwise separate lines
+        else
+            cout << ", ";
+    }
+
+    // Finish with newlines
+    cout << endl << endl;
+}
+
+// Prints the given array
+void PrintArray(std::string startText, unsigned int arr[], int n, int elemsPerLine)
+{
+    using namespace std;
+    cout << startText << endl;
+    cout << "Size: " << n << endl;
+
+    // Print every element in the array
+    for (int i = 0; i < n; i++) {
+        // Print index on first line
+        if (i % elemsPerLine == 0)
+            cout << "[" << (int)(i / 6) << "] ";
+
+        // Print element
+        cout << "(" << arr[i] << ")";
+
+        // Swap rows every elemsPerLine
+        if ((i + 1) % elemsPerLine == 0)
+            cout << endl;
+        // Otherwise separate lines
+        else
+            cout << ", ";
+    }
+
+    // Finish with newlines
+    cout << endl << endl;
 }

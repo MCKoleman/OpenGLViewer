@@ -22,6 +22,9 @@
     <ClCompile Include="..\src\meshModel.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\indexStructs.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\OpenGLWarmup.h">
@@ -46,6 +49,9 @@
       <Filter>Sources</Filter>
     </ClInclude>
     <ClInclude Include="..\src\meshModel.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\indexStructs.h">
       <Filter>Sources</Filter>
     </ClInclude>
   </ItemGroup>
