@@ -1,5 +1,5 @@
 # Which object should be loaded by the program
-object = al.obj
+object = cube.obj
 
 # Scale of the object in the program
 scale = 0.6
@@ -11,7 +11,10 @@ position = 0.0 0.0 0.0
 dcolor = 0.8 0.8 0.8
 
 # Vertex model [0] separate, [1] indexed
-vertexmodel = 1
+vertexmodel = 0
 
 # Should model be drawn in wireframe? [0] No, [1] Yes
 wireframe = 0
+
+# Should the model information be printed in the console? [0] No, [1] Yes
+print = 0

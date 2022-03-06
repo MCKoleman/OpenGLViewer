@@ -20,11 +20,11 @@ void SMesh::ConvertToVertData(float out[])
 			outIndex++;
 
 			// Color
-			out[outIndex] = glm::clamp(vertColor.x + 1 - (i % 3), 0.0f, 1.0f);
+			out[outIndex] = glm::clamp(vertColor.x + tris[i].mat.ka.x, 0.0f, 1.0f);
 			outIndex++;
-			out[outIndex] = glm::clamp(vertColor.y + 1 - ((i + 1) % 3), 0.0f, 1.0f);
+			out[outIndex] = glm::clamp(vertColor.y + tris[i].mat.ka.y, 0.0f, 1.0f);
 			outIndex++;
-			out[outIndex] = glm::clamp(vertColor.z + 1 - ((i + 2) % 3), 0.0f, 1.0f);
+			out[outIndex] = glm::clamp(vertColor.z + tris[i].mat.ka.z, 0.0f, 1.0f);
 			outIndex++;
 		}
 	}
@@ -53,6 +53,11 @@ int SMesh::GetVertCount()
 	return (int)tris.size() * 3;
 }
 
+int SMesh::GetTriCount()
+{
+	return (int)tris.size();
+}
+
 int SMesh::GetVertexModel() { return 0; }
 
 SMesh::~SMesh()
@@ -66,8 +71,8 @@ void IMesh::ConvertToVertData(float out[])
 {
 	// Track out indices separate from loop
 	size_t outIndex = 0;
-	for (int i = 1; i < lastVertIndex; i++) {
-		glm::vec3 vertPos = verts[i].pos * size;
+	for (int i = 0; i < lastVertIndex; i++) {
+		glm::vec3 vertPos = verts[i+1].pos * size;
 		out[outIndex] = vertPos.x + pos.x;
 		outIndex++;
 		out[outIndex] = vertPos.y + pos.y;
@@ -141,6 +146,11 @@ int IMesh::GetIndexCount()
 {
 
 	return (int)tris.size() * 3;
+}
+
+int IMesh::GetTriCount()
+{
+	return (int)tris.size();
 }
 
 int IMesh::GetVertexModel() { return 1; }

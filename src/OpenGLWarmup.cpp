@@ -165,7 +165,7 @@ int main()
         indices = new unsigned int[indicesSize];
         imesh->ConvertToIndexData(indices);
 
-        numVertices = displayMesh->GetVertCount();
+        numVertices = imesh->GetVertCount();
     }
     // Separate triangle structure
     else {
@@ -174,13 +174,15 @@ int main()
         vertices = new float[vertsSize];
         smesh->ConvertToVertData(vertices);
 
-        numVertices = displayMesh->GetVertCount();
+        numVertices = smesh->GetVertCount();
     }
 
     // Print vertices and indices
-    //PrintArray("Printing vertices:", vertices, vertsSize, 6);
-    //if(isIndexed)
-    //    PrintArray("Printing indices:", indices, indicesSize, 6);
+    if (options.print == 1) {
+        PrintArray("Printing vertices:", vertices, vertsSize, 6);
+        if (isIndexed)
+            PrintArray("Printing indices:", indices, indicesSize, 6);
+    }
 
     unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
@@ -190,12 +192,12 @@ int main()
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertsSize, vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertsSize * sizeof(vertices[0]), vertices, GL_STATIC_DRAW);
 
     // Only use EBO for indexed vertex model
     if (isIndexed) {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indices, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize * sizeof(indices[0]), indices, GL_STATIC_DRAW);
     }
 
     // Position
@@ -213,7 +215,7 @@ int main()
     glBindVertexArray(0);
 
     // Enable culling
-    glDisable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
     //glFrontFace(GL_CCW);

@@ -17,6 +17,9 @@ public:
 	// Returns the size of the mesh if it was converted into a vertex array (needed for allocating memory for ConvertToVertData())
 	int GetVertCount();
 
+	// Gets the number of tris in the mesh
+	int GetTriCount();
+
 	// Converts this mesh into a vertex array and stores it in the given array
 	void ConvertToVertData(float out[]);
 
@@ -54,6 +57,9 @@ public:
 
 	// Returns the number of indexes in this mesh
 	int GetIndexCount();
+
+	// Gets the number of tris in the mesh
+	int GetTriCount();
 
 	// Converts this mesh into a vertex array and stores it in the given array
 	void ConvertToVertData(float out[]);

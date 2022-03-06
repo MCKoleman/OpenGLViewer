@@ -19,6 +19,7 @@ struct Options {
 	Material defaultColor;
 	int vertexModel;
 	int wireframe;
+	int print;
 };
 
 Options ReadOptions(std::string fileName);

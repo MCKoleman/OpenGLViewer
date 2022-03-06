@@ -386,6 +386,7 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
     mesh->SetSize(1 / maxSize);
 
     std::cout << "Successfully read object: " << fileName << "." << std::endl;
+    std::cout << "Faces: [" << faceDataList.size() << "], Tris: [" << mesh->GetTriCount() << "], Verts: [" << builtVertexList.size() << "]" << std::endl;
 }
 
 // Builds a separate triangle structure mesh from the provided data
@@ -412,18 +413,22 @@ void BuildSMesh(SMesh* smesh, std::vector<FaceData>& tempFaces, std::unordered_m
 
         // If the face is not an ngon, create a triangle from it
         if (faceVertices.size() == 3) {
-            smesh->AddTri(STriangle(faceVertices[2], faceVertices[1], faceVertices[0], currentMat, faceData.shadingGroup));
+            smesh->AddTri(STriangle(faceVertices[0], faceVertices[1], faceVertices[2], currentMat, faceData.shadingGroup));
         }
         // If the face is a quad, split it into two tris
         else if (faceVertices.size() == 4) {
-            smesh->AddTri(STriangle(faceVertices[2], faceVertices[1], faceVertices[0], currentMat, faceData.shadingGroup));
-            smesh->AddTri(STriangle(faceVertices[0], faceVertices[3], faceVertices[2], currentMat, faceData.shadingGroup));
+            smesh->AddTri(STriangle(faceVertices[0], faceVertices[1], faceVertices[2], currentMat, faceData.shadingGroup));
+            smesh->AddTri(STriangle(faceVertices[2], faceVertices[1], faceVertices[3], currentMat, faceData.shadingGroup));
         }
         // If the face is an ngon, apply polygon triangulation and then add the tris to the mesh
         else if (faceVertices.size() > 4) {
             // Simple triangulation model that does not take into account ngon shape or manifoldness
-            for (int i = 1; i < faceVertices.size() - 1; i++) {
-                smesh->AddTri(STriangle(faceVertices[i + 1], faceVertices[i], faceVertices[0], currentMat, faceData.shadingGroup));
+            for (int i = 0; i < faceVertices.size() - 2; i++) {
+                // Attempt to alternate indexing of ngons
+                if(i % 2 == 0)
+                    smesh->AddTri(STriangle(faceVertices[i], faceVertices[i + 1], faceVertices[i + 2], currentMat, faceData.shadingGroup));
+                else
+                    smesh->AddTri(STriangle(faceVertices[i + 1], faceVertices[i], faceVertices[i + 2], currentMat, faceData.shadingGroup));
             }
         }
         // Skip lines and points as they cannot be rendered
@@ -459,13 +464,17 @@ void BuildIMesh(IMesh* imesh, std::vector<FaceData>& tempFaces, std::unordered_m
         // If the face is a quad, split it into two tris
         else if (faceVertices.size() == 4) {
             imesh->AddTri(ITriangle(faceVertices[0].id, faceVertices[1].id, faceVertices[2].id, currentMat, faceData.shadingGroup));
-            imesh->AddTri(ITriangle(faceVertices[2].id, faceVertices[3].id, faceVertices[0].id, currentMat, faceData.shadingGroup));
+            imesh->AddTri(ITriangle(faceVertices[2].id, faceVertices[1].id, faceVertices[3].id, currentMat, faceData.shadingGroup));
         }
         // If the face is an ngon, apply polygon triangulation and then add the tris to the mesh
         else if (faceVertices.size() > 4) {
             // Simple triangulation model that does not take into account ngon shape or manifoldness
-            for (int i = 1; i < faceVertices.size() - 1; i++) {
-                imesh->AddTri(ITriangle(faceVertices[0].id, faceVertices[i].id, faceVertices[i + 1].id, currentMat, faceData.shadingGroup));
+            for (int i = 0; i < faceVertices.size() - 2; i++) {
+                // Attempt to alternate indexing of ngons
+                if (i % 2 == 0)
+                    imesh->AddTri(ITriangle(faceVertices[i].id, faceVertices[i + 1].id, faceVertices[i + 2].id, currentMat, faceData.shadingGroup));
+                else
+                    imesh->AddTri(ITriangle(faceVertices[i + 1].id, faceVertices[i].id, faceVertices[i + 2].id, currentMat, faceData.shadingGroup));
             }
         }
         // Skip lines and points as they cannot be rendered
@@ -556,6 +565,10 @@ Options ReadOptions(std::string fileName)
                 // Check for wireframe
                 else if (tempParse[0] == "wireframe") {
                     options.wireframe = std::stoi(tempParse[2]);
+                }
+                // Check for print
+                else if (tempParse[0] == "print") {
+                    options.print = std::stoi(tempParse[2]);
                 }
             }
         }

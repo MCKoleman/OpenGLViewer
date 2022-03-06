@@ -28,6 +28,9 @@ public:
 	// Clears the mesh of all tris
 	virtual void ClearTris() = 0;
 
+	// Gets the number of tris in the mesh
+	virtual int GetTriCount() = 0;
+
 	// Vertex model of the mesh [0 for separate, 1 for indexed]
 	virtual int GetVertexModel() = 0;
 
