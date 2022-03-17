@@ -11,6 +11,8 @@ protected:
 public:
 	Material defaultMat = Material();
 
+	glm::vec3 GetPos();
+
 	float GetSize();
 
 	// Sets the size of the mesh to the given size

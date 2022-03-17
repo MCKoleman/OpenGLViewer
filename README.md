@@ -28,8 +28,17 @@ Should the model information be printed in the console? [0] No, [1] Yes
 `print = 0`
 
 ### Program usage:
-The program does not include user interaction after launching beyond closing the program. To change how the program runs, modify config.txt
-When the program is open, press `Esc` to exit the program.
+Press [W] to move forward
+Press [S] to move back
+Press [D] to move right
+Press [A] to move left
+Press [Space] to move up
+Press [Left Shift] to move down
+Press [Q] to scale up
+Press [E] to scale down
+Press [Right Arrow] to rotate right
+Press [Left Arrow] to rotate left
+Press [Esc] to exit the program
 
 ### Links to libraries:
 http://glew.sourceforge.net/

@@ -114,7 +114,8 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message></Message>
+      <Message>
+      </Message>
       <Command>setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/manu2/source/repos/OpenGLWarmup/dlls C:/Users/manu2/source/repos/OpenGLWarmup/build/Debug
 if %errorlevel% neq 0 goto :cmEnd
@@ -126,7 +127,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>..\lib\glfw3.lib;opengl32.lib;glu32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>..\lib\glfw3.lib;glew32s.lib;opengl32.lib;glu32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:/Users/manu2/source/repos/OpenGLWarmup/lib;C:/Users/manu2/source/repos/OpenGLWarmup/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -169,7 +170,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message></Message>
+      <Message>
+      </Message>
       <Command>setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/manu2/source/repos/OpenGLWarmup/dlls C:/Users/manu2/source/repos/OpenGLWarmup/build/Release
 if %errorlevel% neq 0 goto :cmEnd
@@ -181,7 +183,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>..\lib\glfw3.lib;opengl32.lib;glu32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>..\lib\glfw3.lib;glew32s.lib;opengl32.lib;glu32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:/Users/manu2/source/repos/OpenGLWarmup/lib;C:/Users/manu2/source/repos/OpenGLWarmup/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -224,7 +226,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message></Message>
+      <Message>
+      </Message>
       <Command>setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/manu2/source/repos/OpenGLWarmup/dlls C:/Users/manu2/source/repos/OpenGLWarmup/build/MinSizeRel
 if %errorlevel% neq 0 goto :cmEnd
@@ -236,7 +239,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>..\lib\glfw3.lib;opengl32.lib;glu32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>..\lib\glfw3.lib;glew32s.lib;opengl32.lib;glu32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:/Users/manu2/source/repos/OpenGLWarmup/lib;C:/Users/manu2/source/repos/OpenGLWarmup/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -278,7 +281,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message></Message>
+      <Message>
+      </Message>
       <Command>setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/manu2/source/repos/OpenGLWarmup/dlls C:/Users/manu2/source/repos/OpenGLWarmup/build/RelWithDebInfo
 if %errorlevel% neq 0 goto :cmEnd
@@ -290,7 +294,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>..\lib\glfw3.lib;opengl32.lib;glu32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>..\lib\glfw3.lib;glew32s.lib;opengl32.lib;glu32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:/Users/manu2/source/repos/OpenGLWarmup/lib;C:/Users/manu2/source/repos/OpenGLWarmup/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -361,7 +365,12 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\OpenGLWarmup.h" />
+    <ClInclude Include="..\src\camera.h" />
+    <ClInclude Include="..\src\input.h" />
+    <ClInclude Include="..\src\loadShader.h" />
+    <ClInclude Include="..\src\objReader.h" />
+    <ClInclude Include="..\src\OpenGLViewer.h" />
+    <ClInclude Include="..\src\options.h" />
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\fileHelper.h" />
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\indexStructs.h" />
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\material.h" />
@@ -370,7 +379,12 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\openGLInclude.h" />
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\triangle.h" />
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\vertex.h" />
-    <ClCompile Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\OpenGLWarmup.cpp" />
+    <ClCompile Include="..\src\camera.cpp" />
+    <ClCompile Include="..\src\input.cpp" />
+    <ClCompile Include="..\src\loadShader.cpp" />
+    <ClCompile Include="..\src\objReader.cpp" />
+    <ClCompile Include="..\src\OpenGLViewer.cpp" />
+    <ClCompile Include="..\src\options.cpp" />
     <ClCompile Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\fileHelper.cpp" />
     <ClCompile Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\indexStructs.cpp" />
     <ClCompile Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\material.cpp" />
@@ -386,6 +400,11 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md" />
+    <None Include="..\src\source.fs" />
+    <None Include="..\src\source.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

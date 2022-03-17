@@ -1,4 +1,4 @@
-﻿#include "OpenGLWarmup.h"
+﻿#include "OpenGLViewer.h"
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -19,7 +19,7 @@ int main()
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "viewGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Kolehmainen OpenGL Viewer", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -32,81 +32,20 @@ int main()
     // // glew: load all OpenGL function pointers
     glewInit();
 
-
     // build and compile our shader program
     // ------------------------------------
-
-
-    // vertex shader
-    // -------------
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
-    // Load vertex shader from source.vs
-    std::string tempVertShader = ReadShader("../src/source.vs");
-    char* vertexShaderFile = new char[tempVertShader.size()+1];
-    strcpy(vertexShaderFile, tempVertShader.c_str());
-
-    glShaderSource(vertexShader, 1, &vertexShaderFile, NULL);
-    glCompileShader(vertexShader);
-
-    // check for shader compile errors
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    // --------------------
-    // End of vertex shader
-
-
-    // fragment shader
-    // ---------------
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-    // Load fragment shader from source.fs
-    std::string tempFragShader = ReadShader("../src/source.fs");
-    char* fragmentShaderFile = new char[tempFragShader.size() + 1];
-    strcpy(fragmentShaderFile, tempFragShader.c_str());
-
-    glShaderSource(fragmentShader, 1, &fragmentShaderFile, NULL);
-    glCompileShader(fragmentShader);
-
-    // check for shader compile errors
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    // ----------------------
-    // End of fragment shader
-
-
-    // link shaders
-    // ------------
-    unsigned int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    // check for linking errors
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-    }
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    // ----------------------
-    // End of linking shaders
-
+    unsigned int shaderProgram = LoadShaders("../src/source.vs", "../src/source.fs");
 
     // Read Options
     // ------------
     Options options = ReadOptions("../config.txt");
-    bool isIndexed = options.vertexModel == 1;
+    # define INDEXED options.vertexModel == 1
+
+    // Create camera
+    Camera camera = Camera(
+        options.camFov, options.camNearClip, options.camFarClip, 
+        options.camPos, options.camLookAt, options.camUp, 
+        options.camSize, options.isPerspective);
 
     // Read mesh
     // ---------
@@ -115,7 +54,7 @@ int main()
     Mesh* displayMesh;
 
     // Cast the mesh
-    if (isIndexed) {
+    if (INDEXED) {
         imesh = new IMesh();
         displayMesh = imesh;
     }
@@ -127,22 +66,8 @@ int main()
     // Set default color
     displayMesh->defaultMat = options.defaultColor;
 
+    // Read mesh from file
     ReadObjFromFile(displayMesh, "../models/", options.objName);
-
-    // set up vertex data (and buffer(s)) and configure vertex attributes
-    // ------------------------------------------------------------------
-    /*
-    float vertices[] = {
-        -0.5f, -.25f, 0.0f, // left  
-         0.5f, -.75f, 0.0f, // right 
-         0.0f,  0.5f, 0.0f, // top   
-
-        -0.5f, -0.5f, 0.0f, // left  
-         0.5f, -0.5f, 0.0f, // right 
-         0.0f, -1.0f, 0.0f  // bottom
-    };
-    */
-
     displayMesh->SetSize(options.objScale * displayMesh->GetSize());
     displayMesh->SetPos(options.objPos);
     
@@ -154,7 +79,7 @@ int main()
     unsigned int numVertices;
 
     // Indexed triangle structure
-    if (isIndexed) {
+    if (INDEXED) {
         // Get vertices
         vertsSize = imesh->GetVertCount() * 2;
         vertices = new float[vertsSize];
@@ -180,10 +105,11 @@ int main()
     // Print vertices and indices
     if (options.print == 1) {
         PrintArray("Printing vertices:", vertices, vertsSize, 6);
-        if (isIndexed)
+        if (INDEXED)
             PrintArray("Printing indices:", indices, indicesSize, 6);
     }
 
+    // Init VAO, VBO, and EBO
     unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -195,7 +121,7 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, vertsSize * sizeof(vertices[0]), vertices, GL_STATIC_DRAW);
 
     // Only use EBO for indexed vertex model
-    if (isIndexed) {
+    if (INDEXED) {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize * sizeof(indices[0]), indices, GL_STATIC_DRAW);
     }
@@ -206,6 +132,10 @@ int main()
     // Color
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    // Get MVP location
+    unsigned int matrixID = glGetUniformLocation(shaderProgram, "MVP");
+    glm::mat4 mvp = CalcMVP(camera, displayMesh);
 
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -220,7 +150,7 @@ int main()
     //glCullFace(GL_BACK);
     //glFrontFace(GL_CCW);
 
-    // uncomment this call to draw in wireframe polygons.
+    // Enable wireframe if requested in options
     if (options.wireframe == 1) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
@@ -240,12 +170,16 @@ int main()
         glClearColor(0.95f, 0.95f, 0.95f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // draw our first triangle
+        // Draw the object
         glUseProgram(shaderProgram);
+
+        // Apply MVP
+        mvp = CalcMVP(camera, displayMesh);
+        glUniformMatrix4fv(matrixID, 1, GL_FALSE, &mvp[0][0]);
         glBindVertexArray(VAO);
         
         // Draw indexed EBO
-        if (isIndexed) {
+        if (INDEXED) {
             glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, 0);
             //glBindVertexArray(0);
         }
@@ -271,12 +205,10 @@ int main()
 
     // Clear up dynamic memory usage
     // -----------------------------
-    delete[] vertexShaderFile;
-    delete[] fragmentShaderFile;
     delete[] vertices;
 
     // Only delete what was initialized
-    if (isIndexed) {
+    if (INDEXED) {
         glDeleteBuffers(1, &EBO);
         delete imesh;
         delete[] indices;
@@ -291,42 +223,29 @@ int main()
     return 0;
 }
 
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
-bool processInput(GLFWwindow* window)
+// Calculates the model view perspective matrix
+// --------------------------------------------
+glm::mat4 CalcMVP(Camera camera, Mesh* mesh)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, true);
-        return true;
+    // Projection
+    glm::mat4 projection = glm::mat4(1.0f);
+
+    // Perspective projection
+    if (camera.isPerspective) {
+        projection = glm::perspective(glm::radians(camera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, camera.nearClip, camera.farClip);
     }
-    // Move forward
-    else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        return true;
-    }
-    // Move back
-    else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        return true;
-    }
-    // Move right
-    else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        return true;
-    }
-    // Move left
-    else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        return true;
-    }
-    // Move up
-    else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        return true;
-    }
-    // Move down
-    else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-        return true;
-    }
-    // If nothing else was pressed, do nothing
+    // Orthographic projection
     else {
-        return false;
+        glm::mat4 projection = glm::ortho(-camera.orthSize.x, camera.orthSize.x, -camera.orthSize.y, camera.orthSize.y, camera.nearClip, camera.farClip);
     }
+
+    // Camera view
+    glm::mat4 view = glm::lookAt(camera.pos, camera.lookAt, camera.up);
+
+    // Model position
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), mesh->GetPos());
+
+    return projection * view * model;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

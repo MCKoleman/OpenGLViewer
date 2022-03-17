@@ -1,5 +1,10 @@
 #include "mesh.h"
 
+glm::vec3 Mesh::GetPos()
+{
+	return pos;
+}
+
 float Mesh::GetSize()
 {
 	return size;
