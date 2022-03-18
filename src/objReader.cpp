@@ -329,18 +329,6 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
     // Clear previous mesh
     mesh->ClearTris();
 
-    // Build faces from vertices
-    // Build indexed mesh
-    if (mesh->GetVertexModel() == 1) {
-        IMesh* imesh = static_cast<IMesh*>(mesh);
-        BuildIMesh(imesh, faceDataList, tempMaterials, builtVertexList);
-    }
-    // Build separate mesh
-    else {
-        SMesh* smesh = static_cast<SMesh*>(mesh);
-        BuildSMesh(smesh, faceDataList, tempMaterials, builtVertexList);
-    }
-
     // Find the maximum size of vertices
     float maxSize = INT_MIN;
     for (int i = 0; i < vertPosList.size(); i++) {
@@ -351,15 +339,28 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
         if (vertPosList[i].pos.z > maxSize)
             maxSize = vertPosList[i].pos.z;
     }
+    float meshScale = 1 / maxSize;
+    std::cout << "Scaling object down by factor of " << meshScale << ". Largest pos: " << maxSize << std::endl;
+    mesh->SetScale(glm::vec3(1.0f));
 
-    mesh->SetSize(1 / maxSize);
+    // Build faces from vertices
+    // Build indexed mesh
+    if (mesh->GetVertexModel() == 1) {
+        IMesh* imesh = static_cast<IMesh*>(mesh);
+        BuildIMesh(imesh, faceDataList, tempMaterials, builtVertexList, meshScale);
+    }
+    // Build separate mesh
+    else {
+        SMesh* smesh = static_cast<SMesh*>(mesh);
+        BuildSMesh(smesh, faceDataList, tempMaterials, builtVertexList, meshScale);
+    }
 
     std::cout << "Successfully read object: " << fileName << "." << std::endl;
     std::cout << "Faces: [" << faceDataList.size() << "], Tris: [" << mesh->GetTriCount() << "], Verts: [" << builtVertexList.size() << "]" << std::endl;
 }
 
 // Builds a separate triangle structure mesh from the provided data
-void BuildSMesh(SMesh* smesh, std::vector<FaceData>& tempFaces, std::unordered_map<std::string, Material>& tempMaterials, std::vector<IndVertex>& tempVertices)
+void BuildSMesh(SMesh* smesh, std::vector<FaceData>& tempFaces, std::unordered_map<std::string, Material>& tempMaterials, std::vector<IndVertex>& tempVertices, float scale)
 {
     // Build faces from vertices
     for (int faceIndex = 0; faceIndex < tempFaces.size(); faceIndex++) {
@@ -369,6 +370,7 @@ void BuildSMesh(SMesh* smesh, std::vector<FaceData>& tempFaces, std::unordered_m
 
         for (int vertexIndex = 0; vertexIndex < faceData.vertexInfo.size(); vertexIndex++) {
             IndVertex vertex = faceData.vertexInfo[vertexIndex];
+            vertex.ver.pos *= scale;
 
             // Create new vertex
             faceVertices.push_back(vertex.ver);
@@ -405,7 +407,7 @@ void BuildSMesh(SMesh* smesh, std::vector<FaceData>& tempFaces, std::unordered_m
 }
 
 // Builds an indexed triangle mesh from the provided data
-void BuildIMesh(IMesh* imesh, std::vector<FaceData>& tempFaces, std::unordered_map<std::string, Material>& tempMaterials, std::vector<IndVertex>& tempVertices)
+void BuildIMesh(IMesh* imesh, std::vector<FaceData>& tempFaces, std::unordered_map<std::string, Material>& tempMaterials, std::vector<IndVertex>& tempVertices, float scale)
 {
     // Build faces from vertices
     for (int faceIndex = 0; faceIndex < tempFaces.size(); faceIndex++) {
@@ -415,6 +417,7 @@ void BuildIMesh(IMesh* imesh, std::vector<FaceData>& tempFaces, std::unordered_m
 
         for (int vertexIndex = 0; vertexIndex < faceData.vertexInfo.size(); vertexIndex++) {
             IndVertex vertex = faceData.vertexInfo[vertexIndex];
+            vertex.ver.pos *= scale;
 
             faceVertices.push_back(vertex);
             imesh->AddVert(vertex.id, vertex.ver);

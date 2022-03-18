@@ -3,23 +3,42 @@
 #include "material.h"
 #include <vector>
 #include <unordered_map>
+const float MIN_SCALE = 0.0000001f;
 
 class Mesh {
 protected:
-	float size = 1.0f;
-	glm::vec3 pos;
+	glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
 public:
 	Material defaultMat = Material();
 
+	// Translate the mesh by the given vector
+	void Translate(glm::vec3 _deltaPos);
+
+	// Rotates the mesh by the given vector
+	void Rotate(glm::vec3 _deltaRot);
+
+	// Scales the mesh by the given vector
+	void Scale(glm::vec3 _deltaScale);
+
+	// Returns the position of the mesh
 	glm::vec3 GetPos();
 
-	float GetSize();
+	// Returns the rotation of the mesh
+	glm::vec3 GetRotation();
 
-	// Sets the size of the mesh to the given size
-	void SetSize(float _size);
-	
+	// Returns the scale of the mesh
+	glm::vec3 GetScale();
+
 	// Sets the position of the mesh to the given position
 	void SetPos(glm::vec3 _pos);
+
+	// Sets the rotation of the mesh to the given rotation
+	void SetRotation(glm::vec3 _rot);
+
+	// Sets the scale of the mesh to the given scale
+	void SetScale(glm::vec3 _scale);
 	
 	// Returns the size of the mesh if it was converted into a vertex array (needed for allocating memory for ConvertToVertData())
 	virtual int GetVertCount() = 0;

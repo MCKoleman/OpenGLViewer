@@ -8,7 +8,7 @@ void SMesh::ConvertToVertData(float out[])
 	int outIndex = 0;
 	for (int i = 0; i < tris.size(); i++) {
 		for (int j = 0; j < TRI_VERTS; j++) {
-			glm::vec3 vertPos = tris[i].vertices[j].pos * size;
+			glm::vec3 vertPos = tris[i].vertices[j].pos;
 			glm::vec3 vertColor = tris[i].mat.kd;
 
 			// Position
@@ -72,7 +72,7 @@ void IMesh::ConvertToVertData(float out[])
 	// Track out indices separate from loop
 	size_t outIndex = 0;
 	for (int i = 0; i < lastVertIndex; i++) {
-		glm::vec3 vertPos = verts[i+1].pos * size;
+		glm::vec3 vertPos = verts[i+1].pos;
 		out[outIndex] = vertPos.x + pos.x;
 		outIndex++;
 		out[outIndex] = vertPos.y + pos.y;

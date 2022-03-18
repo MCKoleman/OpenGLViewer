@@ -68,7 +68,7 @@ int main()
 
     // Read mesh from file
     ReadObjFromFile(displayMesh, "../models/", options.objName);
-    displayMesh->SetSize(options.objScale * displayMesh->GetSize());
+    displayMesh->Scale(glm::vec3(options.objScale, options.objScale, options.objScale));
     displayMesh->SetPos(options.objPos);
     
     // Load up model into vertice and indice structures
@@ -145,30 +145,50 @@ int main()
     glBindVertexArray(0);
 
     // Enable culling
-    //glEnable(GL_CULL_FACE);
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
     //glFrontFace(GL_CCW);
+
+    // Enable depth buffer
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 
     // Enable wireframe if requested in options
     if (options.wireframe == 1) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
 
+    // Init variables to track user input
+    float moveSpeed = 3.0f;
+    float turnSpeed = 1.0f;
+    float mouseTurnSpeed = 0.1f;
+    float mouseMoveSpeed = 0.1f;
+    float scaleRate = 1.0f;
+    int prevX = -1;
+    int prevY = -1;
+
+    // Track time
+    double lastTime = glfwGetTime();
+    double currentTime = glfwGetTime();
+    float deltaTime = 0.0f;
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
+        // Get deltaTime
+        lastTime = currentTime;
+        currentTime = glfwGetTime();
+        deltaTime = float(currentTime - lastTime);
+
         // input
         // -----
-        if (processInput(window)) {
-            // Update window
-        }
+        processInput(window, &camera, displayMesh, deltaTime, mouseMoveSpeed, mouseTurnSpeed, moveSpeed, turnSpeed, scaleRate, &prevX, &prevY);
 
         // render
         // ------
-        glClearColor(0.95f, 0.95f, 0.95f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClearColor(0.90f, 0.90f, 0.90f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Draw the object
         glUseProgram(shaderProgram);
@@ -240,10 +260,12 @@ glm::mat4 CalcMVP(Camera camera, Mesh* mesh)
     }
 
     // Camera view
-    glm::mat4 view = glm::lookAt(camera.pos, camera.lookAt, camera.up);
+    glm::mat4 view = glm::lookAt(camera.pos, camera.pos + camera.dir, camera.up);
 
     // Model position
+    glm::vec3 scale = mesh->GetScale();
     glm::mat4 model = glm::translate(glm::mat4(1.0f), mesh->GetPos());
+    model = glm::scale(model, scale);
 
     return projection * view * model;
 }

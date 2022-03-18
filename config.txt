@@ -1,5 +1,5 @@
 # Which object should be loaded by the program
-object = al.obj
+object = dolphins.obj
 
 # Scale of the object in the program
 scale = 0.6
@@ -21,7 +21,7 @@ print = 0
 
 # Camera options
 # Camera start position. This is the position of the camera by default
-cameraStartPos = 2.0 0.0 2.0
+cameraStartPos = 0.0 0.0 1.0
 
 # Camera look at direction. This is what the camera looks at by default
 cameraStartLookAt = 0.0 0.0 0.0

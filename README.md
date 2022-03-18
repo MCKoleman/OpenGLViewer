@@ -33,11 +33,14 @@ Press [S] to move back
 Press [D] to move right
 Press [A] to move left
 Press [Space] to move up
-Press [Left Shift] to move down
+Press [Shift] to move down
 Press [Q] to scale up
 Press [E] to scale down
+Press [Up Arrow] to rotate up
+Press [Down Arrow] to rotate down
 Press [Right Arrow] to rotate right
 Press [Left Arrow] to rotate left
+Press [Alt + Left Mouse Button] to rotate with the mouse
 Press [Esc] to exit the program
 
 ### Links to libraries:
