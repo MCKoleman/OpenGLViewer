@@ -23,6 +23,9 @@ public:
 	// Converts this mesh into a vertex array and stores it in the given array
 	void ConvertToVertData(float out[]);
 
+	// Converts this mesh into a vertex array with vertex, color, and normal data
+	void ConvertToVertColorNormalData(float out[]);
+
 	// Clears the mesh of all tris
 	void ClearTris();
 

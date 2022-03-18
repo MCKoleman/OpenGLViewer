@@ -25,7 +25,7 @@ bool processInput(GLFWwindow* window, Camera* camera, Mesh* mesh, float deltaTim
             camera->pos += camera->dir * deltaTime * speeds->cameraMoveSpeed;
         // Otherwise move model
         else
-            mesh->Translate(camera->dir * deltaTime * speeds->modelMoveSpeed);
+            mesh->Translate(mesh->GetForward() * deltaTime * speeds->modelMoveSpeed);
         didReceiveInput = true;
     }
     // Move back
@@ -35,7 +35,7 @@ bool processInput(GLFWwindow* window, Camera* camera, Mesh* mesh, float deltaTim
             camera->pos -= camera->dir * deltaTime * speeds->cameraMoveSpeed;
         // Otherwise move model
         else
-            mesh->Translate(-camera->dir * deltaTime * speeds->modelMoveSpeed);
+            mesh->Translate(-mesh->GetForward() * deltaTime * speeds->modelMoveSpeed);
         didReceiveInput = true;
     }
     // Move right
@@ -45,7 +45,7 @@ bool processInput(GLFWwindow* window, Camera* camera, Mesh* mesh, float deltaTim
             camera->pos += camera->right * deltaTime * speeds->cameraMoveSpeed;
         // Otherwise move model
         else
-            mesh->Translate(camera->right * deltaTime * speeds->modelMoveSpeed);
+            mesh->Translate(mesh->GetRight() * deltaTime * speeds->modelMoveSpeed);
         didReceiveInput = true;
     }
     // Move left
@@ -55,7 +55,7 @@ bool processInput(GLFWwindow* window, Camera* camera, Mesh* mesh, float deltaTim
             camera->pos -= camera->right * deltaTime * speeds->cameraMoveSpeed;
         // Otherwise move model
         else
-            mesh->Translate(-camera->right * deltaTime * speeds->modelMoveSpeed);
+            mesh->Translate(-mesh->GetRight() * deltaTime * speeds->modelMoveSpeed);
         didReceiveInput = true;
     }
     // Move up
@@ -65,7 +65,7 @@ bool processInput(GLFWwindow* window, Camera* camera, Mesh* mesh, float deltaTim
             camera->pos += camera->up * deltaTime * speeds->cameraMoveSpeed;
         // Otherwise move model
         else
-            mesh->Translate(camera->up * deltaTime * speeds->modelMoveSpeed);
+            mesh->Translate(mesh->GetUp() * deltaTime * speeds->modelMoveSpeed);
         didReceiveInput = true;
     }
     // Move down
@@ -75,7 +75,7 @@ bool processInput(GLFWwindow* window, Camera* camera, Mesh* mesh, float deltaTim
             camera->pos -= camera->up * deltaTime * speeds->cameraMoveSpeed;
         // Otherwise move model
         else
-            mesh->Translate(-camera->up * deltaTime * speeds->modelMoveSpeed);
+            mesh->Translate(-mesh->GetUp() * deltaTime * speeds->modelMoveSpeed);
         didReceiveInput = true;
     }
 
@@ -182,8 +182,10 @@ bool processInput(GLFWwindow* window, Camera* camera, Mesh* mesh, float deltaTim
     }
 
     // Recalculate camera basis if any input was received
-    if(didReceiveInput)
+    if (didReceiveInput) {
         camera->CalcBasis();
+        mesh->CalcBasis();
+    }
 
     return didReceiveInput;
 }

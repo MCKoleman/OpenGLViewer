@@ -95,18 +95,18 @@ int main()
     // Separate triangle structure
     else {
         // Get vertices
-        vertsSize = smesh->GetVertCount() * 6;
+        vertsSize = smesh->GetVertCount() * 9;
         vertices = new float[vertsSize];
-        smesh->ConvertToVertData(vertices);
+        smesh->ConvertToVertColorNormalData(vertices);
 
         numVertices = smesh->GetVertCount();
     }
 
     // Print vertices and indices
     if (options.print == 1) {
-        PrintArray("Printing vertices:", vertices, vertsSize, 6);
+        PrintArray("Printing vertices:", vertices, vertsSize, 9);
         if (INDEXED)
-            PrintArray("Printing indices:", indices, indicesSize, 6);
+            PrintArray("Printing indices:", indices, indicesSize, 9);
     }
 
     // Init VAO, VBO, and EBO
@@ -127,11 +127,14 @@ int main()
     }
 
     // Position
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    // Color
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    // Normal
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    // Color
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     // Get MVP location
     unsigned int matrixID = glGetUniformLocation(shaderProgram, "MVP");

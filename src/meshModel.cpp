@@ -29,6 +29,44 @@ void SMesh::ConvertToVertData(float out[])
 		}
 	}
 }
+
+void SMesh::ConvertToVertColorNormalData(float out[])
+{
+	// Track out indices separate from loop
+	int outIndex = 0;
+	for (int i = 0; i < tris.size(); i++) {
+		for (int j = 0; j < TRI_VERTS; j++) {
+			glm::vec3 vertPos = tris[i].vertices[j].pos;
+			glm::vec3 vertNorm = tris[i].vertices[j].normal;
+			glm::vec3 vertColor = tris[i].mat.kd;
+
+			// Position
+			out[outIndex] = vertPos.x + pos.x;
+			outIndex++;
+			out[outIndex] = vertPos.y + pos.y;
+			outIndex++;
+			out[outIndex] = vertPos.z + pos.z;
+			outIndex++;
+
+			// Normal
+			out[outIndex] = vertNorm.x;
+			outIndex++;
+			out[outIndex] = vertNorm.y;
+			outIndex++;
+			out[outIndex] = vertNorm.z;
+			outIndex++;
+
+			// Color
+			out[outIndex] = glm::clamp(vertColor.x + tris[i].mat.ka.x, 0.0f, 1.0f);
+			outIndex++;
+			out[outIndex] = glm::clamp(vertColor.y + tris[i].mat.ka.y, 0.0f, 1.0f);
+			outIndex++;
+			out[outIndex] = glm::clamp(vertColor.z + tris[i].mat.ka.z, 0.0f, 1.0f);
+			outIndex++;
+		}
+	}
+}
+
 void SMesh::AddTri(STriangle _tri)
 {
 	tris.push_back(_tri);

@@ -1,5 +1,38 @@
 #include "mesh.h"
 
+void Mesh::CalcBasis()
+{
+    forward = glm::vec3(
+        cos(rotation.y) * sin(rotation.x),
+        sin(rotation.y),
+        cos(rotation.y) * cos(rotation.x)
+    );
+
+    // Right vector
+    right = glm::vec3(
+        sin(rotation.x - HALF_PI),
+        0,
+        cos(rotation.x - HALF_PI)
+    );
+
+    // Up vector : perpendicular to both direction and right
+    up = glm::cross(right, forward);
+}
+
+glm::vec3 Mesh::GetUp()
+{
+    return up;
+}
+
+glm::vec3 Mesh::GetRight()
+{
+    return right;
+}
+
+glm::vec3 Mesh::GetForward()
+{
+    return forward;
+}
 
 void Mesh::Translate(glm::vec3 _deltaPos)
 {

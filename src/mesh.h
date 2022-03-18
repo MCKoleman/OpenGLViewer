@@ -16,6 +16,18 @@ protected:
 public:
 	Material defaultMat = Material();
 
+	// Calculates the basis of the mesh
+	void CalcBasis();
+
+	// Returns the up vector of this mesh
+	glm::vec3 GetUp();
+	
+	// Returns the right vector of this mesh
+	glm::vec3 GetRight();
+
+	// Returns the forward vector of this mesh
+	glm::vec3 GetForward();
+
 	// Translate the mesh by the given vector
 	void Translate(glm::vec3 _deltaPos);
 
