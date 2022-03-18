@@ -388,18 +388,48 @@ void BuildSMesh(SMesh* smesh, std::vector<FaceData>& tempFaces, std::unordered_m
         }
         // If the face is a quad, split it into two tris
         else if (faceVertices.size() == 4) {
-            smesh->AddTri(STriangle(faceVertices[0], faceVertices[1], faceVertices[2], currentMat, faceData.shadingGroup));
-            smesh->AddTri(STriangle(faceVertices[2], faceVertices[1], faceVertices[3], currentMat, faceData.shadingGroup));
+            float dist1 = glm::distance(faceVertices[0].pos, faceVertices[2].pos);
+            float dist2 = glm::distance(faceVertices[1].pos, faceVertices[3].pos);
+            if (dist1 > dist2) {
+                smesh->AddTri(STriangle(faceVertices[0], faceVertices[1], faceVertices[3], currentMat, faceData.shadingGroup));
+                smesh->AddTri(STriangle(faceVertices[1], faceVertices[2], faceVertices[3], currentMat, faceData.shadingGroup));
+            }
+            else {
+                smesh->AddTri(STriangle(faceVertices[0], faceVertices[1], faceVertices[2], currentMat, faceData.shadingGroup));
+                smesh->AddTri(STriangle(faceVertices[0], faceVertices[2], faceVertices[3], currentMat, faceData.shadingGroup));
+            }
         }
         // If the face is an ngon, apply polygon triangulation and then add the tris to the mesh
         else if (faceVertices.size() > 4) {
             // Simple triangulation model that does not take into account ngon shape or manifoldness
             for (int i = 0; i < faceVertices.size() - 2; i++) {
-                // Attempt to alternate indexing of ngons
-                if (i % 2 == 0)
-                    smesh->AddTri(STriangle(faceVertices[i], faceVertices[i + 1], faceVertices[i + 2], currentMat, faceData.shadingGroup));
-                else
-                    smesh->AddTri(STriangle(faceVertices[i + 1], faceVertices[i], faceVertices[i + 2], currentMat, faceData.shadingGroup));
+                if (i < faceVertices.size() - 3) {
+                    float dist1 = glm::distance(faceVertices[i].pos, faceVertices[i + 2].pos);
+                    float dist2 = glm::distance(faceVertices[i + 1].pos, faceVertices[i + 3].pos);
+
+                    if (dist1 > dist2) {
+                        smesh->AddTri(STriangle(faceVertices[i], faceVertices[i+1], faceVertices[i+3], currentMat, faceData.shadingGroup));
+                        smesh->AddTri(STriangle(faceVertices[i+1], faceVertices[i+2], faceVertices[i+3], currentMat, faceData.shadingGroup));
+                    }
+                    else {
+                        smesh->AddTri(STriangle(faceVertices[i], faceVertices[i+1], faceVertices[i+2], currentMat, faceData.shadingGroup));
+                        smesh->AddTri(STriangle(faceVertices[i], faceVertices[i+2], faceVertices[i+3], currentMat, faceData.shadingGroup));
+                    }
+                    // If two tris were handled at once, skip the next one
+                    i++;
+                }
+                else {
+                    float isClockwise = (faceVertices[i+1].pos.x - faceVertices[i].pos.x) * (faceVertices[i+2].pos.y - faceVertices[i].pos.y)
+                        - (faceVertices[i+2].pos.x - faceVertices[i].pos.x) * (faceVertices[i+1].pos.y - faceVertices[i].pos.y);
+                    // Is abc a clockwise face?
+                    if (isClockwise < 0) {
+                        smesh->AddTri(STriangle(faceVertices[i], faceVertices[i+1], faceVertices[i+2], currentMat, faceData.shadingGroup));
+                    }
+                    // If abc is ccw, then acb should be clockwise
+                    else {
+                        smesh->AddTri(STriangle(faceVertices[i], faceVertices[i+2], faceVertices[i+1], currentMat, faceData.shadingGroup));
+                    }
+                }
             }
         }
         // Skip lines and points as they cannot be rendered
@@ -435,8 +465,16 @@ void BuildIMesh(IMesh* imesh, std::vector<FaceData>& tempFaces, std::unordered_m
         }
         // If the face is a quad, split it into two tris
         else if (faceVertices.size() == 4) {
-            imesh->AddTri(ITriangle(faceVertices[0].id, faceVertices[1].id, faceVertices[2].id, currentMat, faceData.shadingGroup));
-            imesh->AddTri(ITriangle(faceVertices[2].id, faceVertices[1].id, faceVertices[3].id, currentMat, faceData.shadingGroup));
+            float dist1 = glm::distance(faceVertices[0].ver.pos, faceVertices[2].ver.pos);
+            float dist2 = glm::distance(faceVertices[1].ver.pos, faceVertices[3].ver.pos);
+            if (dist1 > dist2) {
+                imesh->AddTri(ITriangle(faceVertices[0].id, faceVertices[1].id, faceVertices[3].id, currentMat, faceData.shadingGroup));
+                imesh->AddTri(ITriangle(faceVertices[1].id, faceVertices[2].id, faceVertices[3].id, currentMat, faceData.shadingGroup));
+            }
+            else {
+                imesh->AddTri(ITriangle(faceVertices[0].id, faceVertices[1].id, faceVertices[2].id, currentMat, faceData.shadingGroup));
+                imesh->AddTri(ITriangle(faceVertices[0].id, faceVertices[2].id, faceVertices[3].id, currentMat, faceData.shadingGroup));
+            }
         }
         // If the face is an ngon, apply polygon triangulation and then add the tris to the mesh
         else if (faceVertices.size() > 4) {

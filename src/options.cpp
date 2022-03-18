@@ -98,3 +98,7 @@ Options ReadOptions(std::string fileName)
 
     return options;
 }
+
+SpeedConsts::SpeedConsts(float _camMove, float _camTurn, float _modelMove, float _modelTurn, float _modelScale, float _mouseMove, float _mouseTurn)
+    : cameraMoveSpeed(_camMove), cameraTurnSpeed(_camTurn), modelMoveSpeed(_modelMove), modelTurnSpeed(_modelTurn), modelScaleRate(_modelScale),
+    mouseMoveSpeed(_mouseMove), mouseTurnSpeed(_mouseTurn) {}

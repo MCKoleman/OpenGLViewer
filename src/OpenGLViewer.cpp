@@ -158,12 +158,9 @@ int main()
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
 
-    // Init variables to track user input
-    float moveSpeed = 3.0f;
-    float turnSpeed = 1.0f;
-    float mouseTurnSpeed = 0.1f;
-    float mouseMoveSpeed = 0.1f;
-    float scaleRate = 1.0f;
+    // Init variables to track user input. Speed constants declared in order:
+    // CamMove, CamTurn, ModelMove, ModelTurn, ModelScale, MouseMove, MouseTurn
+    SpeedConsts speeds = SpeedConsts(2.0f, 1.0f, 0.3f, 30.0f, 1.0f, 0.1f, 0.1f);
     int prevX = -1;
     int prevY = -1;
 
@@ -183,7 +180,7 @@ int main()
 
         // input
         // -----
-        processInput(window, &camera, displayMesh, deltaTime, mouseMoveSpeed, mouseTurnSpeed, moveSpeed, turnSpeed, scaleRate, &prevX, &prevY);
+        processInput(window, &camera, displayMesh, deltaTime, &speeds, &prevX, &prevY);
 
         // render
         // ------
@@ -264,8 +261,17 @@ glm::mat4 CalcMVP(Camera camera, Mesh* mesh)
 
     // Model position
     glm::vec3 scale = mesh->GetScale();
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), mesh->GetPos());
-    model = glm::scale(model, scale);
+    glm::vec3 rotation = mesh->GetRotation();
+    glm::vec3 position = mesh->GetPos();
+    glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
+
+    glm::mat4 rotateX = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(0, 1, 0));
+    glm::mat4 rotateY = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(1, 0, 0));
+    glm::mat4 rotateZ = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), glm::vec3(0, 0, 1));
+
+    glm::mat4 modelRotated = rotateZ * rotateY * rotateX * translate;
+    glm::mat4 modelUnscaled = glm::translate(modelRotated, position);
+    glm::mat4 model = glm::scale(modelUnscaled, scale);
 
     return projection * view * model;
 }

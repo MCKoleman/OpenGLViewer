@@ -22,4 +22,19 @@ struct Options {
 	bool isPerspective;
 };
 
+// A structure containing constants of movement and rotation
+struct SpeedConsts {
+	float cameraMoveSpeed = 3.0f;
+	float cameraTurnSpeed = 1.0f;
+
+	float modelMoveSpeed = 3.0f;
+	float modelTurnSpeed = 5.0f;
+	float modelScaleRate = 1.0f;
+
+	float mouseMoveSpeed = 0.1f;
+	float mouseTurnSpeed = 0.1f;
+
+	SpeedConsts(float _camMove, float _camTurn, float _modelMove, float _modelTurn, float _modelScale, float _mouseMove, float _mouseTurn);
+};
+
 Options ReadOptions(std::string fileName);

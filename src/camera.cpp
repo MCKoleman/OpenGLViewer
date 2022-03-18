@@ -30,7 +30,7 @@ Camera::Camera(float _fov, float _nearClip, float _farClip, glm::vec3 _pos, glm:
 	: Camera(_fov, _nearClip, _farClip, _pos, _dir, _up, glm::vec2(), true) {}
 
 Camera::Camera(float _fov, float _nearClip, float _farClip, glm::vec3 _pos, glm::vec3 _dir, glm::vec3 _up, glm::vec2 _orthSize, bool _isPerspective)
-	: fov(_fov), nearClip(_nearClip), farClip(_farClip), pos(_pos), dir(_dir), up(_up), orthSize(_orthSize), isPerspective(_isPerspective), rotation(glm::vec3())
+	: fov(_fov), nearClip(_nearClip), farClip(_farClip), pos(_pos), dir(_dir), up(_up), orthSize(_orthSize), isPerspective(_isPerspective)
 {
     rotation = glm::vec3(PI, 0.0f, 0.0f);
     CalcBasis();

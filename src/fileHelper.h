@@ -7,8 +7,6 @@
 #include "openGLInclude.h"
 #include "indexStructs.h"
 #include "loadShader.h"
-#include "input.h"
-#include "options.h"
 #include "camera.h"
 
 glm::vec3 ReadVec3FromStrings(std::vector<std::string>& strings);

@@ -2,7 +2,11 @@
 #include "openGLInclude.h"
 #include "camera.h"
 #include "mesh.h"
+#include "options.h"
 
-bool processInput(GLFWwindow* window, Camera* camera, Mesh* mesh, 
-	float deltaTime, float mouseMoveSpeed, float mouseTurnSpeed, float moveSpeed, float turnSpeed, float scaleRate,
-	int* prevX, int* prevY);
+#define SHIFT_PRESS (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
+#define ALT_PRESS (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS)
+#define CTRL_PRESS (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS)
+#define MOUSE_PRESS (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+
+bool processInput(GLFWwindow* window, Camera* camera, Mesh* mesh, float deltaTime, SpeedConsts* speeds, int* prevX, int* prevY);
