@@ -1,4 +1,4 @@
-# OpenGL Warmup Project
+# OpenGL Viewer Project
 This project is a simple OpenGL 3D model renderer. It allows .obj and .mtl files to be opened and viewed. The core libraries used are GLEW, GLFW, and GLM.
 
 ## Compilation
