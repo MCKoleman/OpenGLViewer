@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include "mesh.h"
 #include "meshModel.h"
-#include "openGLInclude.h"
+#include "glIncludes.h"
 #include "indexStructs.h"
 #include "loadShader.h"
 #include "camera.h"

@@ -96,6 +96,32 @@ int SMesh::GetTriCount()
 	return (int)tris.size();
 }
 
+void SMesh::RecalculateNormals()
+{
+	// Reset normals for each tri
+	for (int i = 0; i < tris.size(); i++) {
+		for (int j = 0; j < TRI_VERTS; j++) {
+			tris[i].vertices[j].normal = glm::vec3(0, 0, 0);
+		}
+	}
+
+	// Calculate normals for each tri
+	for (int i = 0; i < tris.size(); i++) {
+		glm::vec3 triNorm = tris[i].CalcNormal();
+
+		for (int j = 0; j < TRI_VERTS; j++) {
+			tris[i].vertices[j].normal += triNorm;
+		}
+	}
+
+	// Normalize normals for each vertex
+	for (int i = 0; i < tris.size(); i++) {
+		for (int j = 0; j < TRI_VERTS; j++) {
+			tris[i].vertices[j].normal = glm::normalize(tris[i].vertices[j].normal);
+		}
+	}
+}
+
 int SMesh::GetVertexModel() { return 0; }
 
 SMesh::~SMesh()
@@ -189,6 +215,11 @@ int IMesh::GetIndexCount()
 int IMesh::GetTriCount()
 {
 	return (int)tris.size();
+}
+
+void IMesh::RecalculateNormals()
+{
+
 }
 
 int IMesh::GetVertexModel() { return 1; }

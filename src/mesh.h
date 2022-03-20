@@ -70,6 +70,9 @@ public:
 	// Vertex model of the mesh [0 for separate, 1 for indexed]
 	virtual int GetVertexModel() = 0;
 
+	// Recalculates the normals of the mesh
+	virtual void RecalculateNormals() = 0;
+
 	Mesh();
 	~Mesh();
 };

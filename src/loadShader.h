@@ -3,7 +3,7 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
-#include "openGLInclude.h"
+#include "glIncludes.h"
 
 std::string ReadShaderFromFile(std::string filename);
 unsigned int LoadShaders(std::string vertexFile, std::string fragmentFile);

@@ -32,6 +32,9 @@ public:
 	// Vertex model of the mesh [0 for separate, 1 for indexed]
 	int GetVertexModel();
 
+	// Recalculates the normals of the mesh
+	void RecalculateNormals();
+
 	~SMesh();
 };
 
@@ -75,6 +78,9 @@ public:
 
 	// Vertex model of the mesh [0 for separate, 1 for indexed]
 	int GetVertexModel();
+
+	// Recalculates the normals of the mesh
+	void RecalculateNormals();
 
 	~IMesh();
 };

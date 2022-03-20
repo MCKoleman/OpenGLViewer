@@ -1,5 +1,5 @@
 #pragma once
-#include "openGLInclude.h"
+#include "glIncludes.h"
 
 struct Camera {
 	float fov;

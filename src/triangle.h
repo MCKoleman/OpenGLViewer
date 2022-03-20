@@ -9,12 +9,14 @@ struct Triangle {
 	int shadingGroup = -1;
 
 	void SetMat(Material _mat);
+	virtual glm::vec3 CalcNormal() = 0;
 
 	Triangle();
 };
 
 struct STriangle : public Triangle {
 	Vertex vertices[TRI_VERTS];
+	glm::vec3 CalcNormal();
 
 	STriangle();
 	STriangle(Vertex v0, Vertex v1, Vertex v2);
@@ -24,6 +26,7 @@ struct STriangle : public Triangle {
 
 struct ITriangle : public Triangle {
 	int vertices[TRI_VERTS];
+	glm::vec3 CalcNormal();
 
 	ITriangle();
 	ITriangle(int i0, int i1, int i2);

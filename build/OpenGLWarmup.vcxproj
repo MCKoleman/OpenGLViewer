@@ -367,6 +367,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   <ItemGroup>
     <ClInclude Include="..\src\camera.h" />
     <ClInclude Include="..\src\input.h" />
+    <ClInclude Include="..\src\light.h" />
     <ClInclude Include="..\src\loadShader.h" />
     <ClInclude Include="..\src\objReader.h" />
     <ClInclude Include="..\src\OpenGLViewer.h" />
@@ -376,11 +377,12 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\material.h" />
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\mesh.h" />
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\meshModel.h" />
-    <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\openGLInclude.h" />
+    <ClInclude Include="..\src\glIncludes.h" />
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\triangle.h" />
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\vertex.h" />
     <ClCompile Include="..\src\camera.cpp" />
     <ClCompile Include="..\src\input.cpp" />
+    <ClCompile Include="..\src\light.cpp" />
     <ClCompile Include="..\src\loadShader.cpp" />
     <ClCompile Include="..\src\objReader.cpp" />
     <ClCompile Include="..\src\OpenGLViewer.cpp" />

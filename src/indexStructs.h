@@ -1,7 +1,7 @@
 #pragma once
 #include "mesh.h"
 #include "meshModel.h"
-#include "openGLInclude.h"
+#include "glIncludes.h"
 
 // An indexed vertex. Used to facilitate indexed triangle structures
 struct IndVertex {

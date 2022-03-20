@@ -159,9 +159,9 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
                             if (tempFaceVertData.size() > 0)
                                 vertPos = FindVert(vertPosList, tempFaceVertData[0]).pos;
                             if (tempFaceVertData.size() > 1)
-                                vertNorm = FindVert(vertNormList, tempFaceVertData[1]).pos;
+                                vertText = FindVert(vertTextList, tempFaceVertData[1]).pos;
                             if (tempFaceVertData.size() > 2)
-                                vertText = FindVert(vertTextList, tempFaceVertData[2]).pos;
+                                vertNorm = FindVert(vertNormList, tempFaceVertData[2]).pos;
 
                             Vertex newVert = Vertex(vertPos, vertNorm, vertText);
                             builtVertexList.push_back(IndVertex(vertPosIndex, newVert));
@@ -354,6 +354,10 @@ void ReadObjFromFile(Mesh* mesh, std::string location, std::string fileName)
         SMesh* smesh = static_cast<SMesh*>(mesh);
         BuildSMesh(smesh, faceDataList, tempMaterials, builtVertexList, meshScale);
     }
+
+    // If no normals were read, recalculate normals for the mesh
+    if (vertNormList.size() <= 0)
+        mesh->RecalculateNormals();
 
     std::cout << "Successfully read object: " << fileName << "." << std::endl;
     std::cout << "Faces: [" << faceDataList.size() << "], Tris: [" << mesh->GetTriCount() << "], Verts: [" << builtVertexList.size() << "]" << std::endl;

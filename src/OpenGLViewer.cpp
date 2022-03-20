@@ -47,6 +47,14 @@ int main()
         options.camPos, options.camLookAt, options.camUp, 
         options.camSize, options.isPerspective);
 
+    // Create light
+    Light dirLight = Light(
+        glm::vec3(5.0f, 5.0f, 5.0f),        // Light pos
+        glm::vec3(-1.0f, -1.0f, -1.0f),     // Light dir
+        glm::vec3(1.0f, 1.0f, 1.0f),        // Light color
+        0.1f,                               // Ambient strength
+        0.5f);                              // Specular strength
+
     // Read mesh
     // ---------
     IMesh* imesh;
@@ -135,17 +143,31 @@ int main()
     // Color
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
+    glBindVertexArray(0);
 
-    // Get MVP location
+    // Generate light
+    //unsigned int lightVAO;
+    //glGenVertexArrays(1, &lightVAO);
+    //glBindVertexArray(lightVAO);
+    //glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    //glEnableVertexAttribArray(0);
+
+    // Get uniform locations
     unsigned int matrixID = glGetUniformLocation(shaderProgram, "MVP");
-    glm::mat4 mvp = CalcMVP(camera, displayMesh);
+    unsigned int modelID = glGetUniformLocation(shaderProgram, "Model");
+    unsigned int normalModelID = glGetUniformLocation(shaderProgram, "NormalModel");
+    unsigned int lightPosID = glGetUniformLocation(shaderProgram, "LightPos");
+    unsigned int lightColorID = glGetUniformLocation(shaderProgram, "LightColor");
+    unsigned int viewPosID = glGetUniformLocation(shaderProgram, "ViewPos");
+    unsigned int ambientStrengthID = glGetUniformLocation(shaderProgram, "AmbientStrength");
+    unsigned int specularStrengthID = glGetUniformLocation(shaderProgram, "SpecularStrength");
+    
+    // Get initial mvp
+    glm::mat4 mvp = CalcMVP(&camera, displayMesh);
 
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-    glBindVertexArray(0);
 
     // Enable culling
     glEnable(GL_CULL_FACE);
@@ -194,8 +216,21 @@ int main()
         glUseProgram(shaderProgram);
 
         // Apply MVP
-        mvp = CalcMVP(camera, displayMesh);
+        glm::mat4 model = GetModelMatrix(displayMesh);
+        glm::mat4 view = GetViewMatrix(&camera);
+        glm::mat4 projection = GetProjectionMatrix(&camera);
+        glm::mat3 normalModel = glm::mat3(glm::transpose(glm::inverse(model)));
+        mvp = projection * view * model;
         glUniformMatrix4fv(matrixID, 1, GL_FALSE, &mvp[0][0]);
+        glUniformMatrix4fv(modelID, 1, GL_FALSE, &model[0][0]);
+        glUniformMatrix3fv(normalModelID, 1, GL_FALSE, &normalModel[0][0]);
+
+        // Apply lighting
+        glUniform1f(ambientStrengthID, dirLight.ka);
+        glUniform1f(specularStrengthID, dirLight.ks);
+        glUniform3fv(lightPosID, 1, &dirLight.pos[0]);
+        glUniform3fv(lightColorID, 1, &dirLight.color[0]);
+        glUniform3fv(viewPosID, 1, &camera.pos[0]);
         glBindVertexArray(VAO);
         
         // Draw indexed EBO
@@ -226,15 +261,12 @@ int main()
     // Clear up dynamic memory usage
     // -----------------------------
     delete[] vertices;
+    delete displayMesh;
 
     // Only delete what was initialized
     if (INDEXED) {
         glDeleteBuffers(1, &EBO);
-        delete imesh;
         delete[] indices;
-    }
-    else {
-        delete smesh;
     }
     
     // glfw: terminate, clearing all previously allocated GLFW resources.
@@ -245,23 +277,40 @@ int main()
 
 // Calculates the model view perspective matrix
 // --------------------------------------------
-glm::mat4 CalcMVP(Camera camera, Mesh* mesh)
+glm::mat4 CalcMVP(Camera* camera, Mesh* mesh)
+{
+    return GetProjectionMatrix(camera) * GetViewMatrix(camera) * GetModelMatrix(mesh);
+}
+
+// Returns the projection matrix of the given camera
+glm::mat4 GetProjectionMatrix(Camera* camera)
 {
     // Projection
     glm::mat4 projection = glm::mat4(1.0f);
 
     // Perspective projection
-    if (camera.isPerspective) {
-        projection = glm::perspective(glm::radians(camera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, camera.nearClip, camera.farClip);
+    if ((*camera).isPerspective) {
+        projection = glm::perspective(glm::radians((*camera).fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, (*camera).nearClip, (*camera).farClip);
     }
     // Orthographic projection
     else {
-        glm::mat4 projection = glm::ortho(-camera.orthSize.x, camera.orthSize.x, -camera.orthSize.y, camera.orthSize.y, camera.nearClip, camera.farClip);
+        glm::mat4 projection = glm::ortho(-(*camera).orthSize.x, (*camera).orthSize.x, -(*camera).orthSize.y, (*camera).orthSize.y, 
+            (*camera).nearClip, (*camera).farClip);
     }
 
-    // Camera view
-    glm::mat4 view = glm::lookAt(camera.pos, camera.pos + camera.dir, camera.up);
+    return projection;
+}
 
+// Returns the view matrix of the given camera
+glm::mat4 GetViewMatrix(Camera* camera)
+{
+    // Camera view
+    return glm::lookAt((*camera).pos, (*camera).pos + (*camera).dir, (*camera).up);
+}
+
+// Returns the model matrix of the given mesh
+glm::mat4 GetModelMatrix(Mesh* mesh)
+{
     // Model position
     glm::vec3 scale = mesh->GetScale();
     glm::vec3 rotation = mesh->GetRotation();
@@ -274,9 +323,7 @@ glm::mat4 CalcMVP(Camera camera, Mesh* mesh)
 
     glm::mat4 modelRotated = rotateZ * rotateY * rotateX * translate;
     glm::mat4 modelUnscaled = glm::translate(modelRotated, position);
-    glm::mat4 model = glm::scale(modelUnscaled, scale);
-
-    return projection * view * model;
+    return glm::scale(modelUnscaled, scale);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

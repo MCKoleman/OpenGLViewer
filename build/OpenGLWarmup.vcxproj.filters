@@ -40,49 +40,55 @@
     <ClCompile Include="..\src\objReader.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\light.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\OpenGLViewer.h">
-      <Filter>Sources</Filter>
+    <ClInclude Include="..\src\camera.h">
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\fileHelper.h">
-      <Filter>Sources</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\indexStructs.h">
-      <Filter>Sources</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\material.h">
-      <Filter>Sources</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\mesh.h">
-      <Filter>Sources</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\meshModel.h">
-      <Filter>Sources</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\openGLInclude.h">
-      <Filter>Sources</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\triangle.h">
-      <Filter>Sources</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\vertex.h">
-      <Filter>Sources</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\loadShader.h">
-      <Filter>Sources</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\src\input.h">
-      <Filter>Sources</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\camera.h">
-      <Filter>Sources</Filter>
+    <ClInclude Include="..\src\light.h">
+      <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\options.h">
-      <Filter>Sources</Filter>
+    <ClInclude Include="..\src\loadShader.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\mesh.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\material.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\meshModel.h">
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\src\objReader.h">
-      <Filter>Sources</Filter>
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\OpenGLViewer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\glIncludes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\options.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\triangle.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\manu2\source\repos\OpenGLWarmup\src\vertex.h">
+      <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -92,16 +98,22 @@
     <Filter Include="Sources">
       <UniqueIdentifier>{8BBF6E54-B2EB-300B-8B5D-0A4D5F91DC1C}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{1a96a3d6-5d5c-4d1d-99ea-b203dc871557}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{0bf1809f-8260-40b6-891a-1419e1357496}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md">
-      <Filter>Sources</Filter>
-    </None>
-    <None Include="..\src\source.vs">
-      <Filter>Sources</Filter>
+      <Filter>Resources</Filter>
     </None>
     <None Include="..\src\source.fs">
-      <Filter>Sources</Filter>
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\src\source.vs">
+      <Filter>Resources</Filter>
     </None>
   </ItemGroup>
 </Project>
