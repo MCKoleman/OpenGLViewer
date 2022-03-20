@@ -32,14 +32,21 @@ int main()
     // // glew: load all OpenGL function pointers
     glewInit();
 
-    // build and compile our shader program
-    // ------------------------------------
-    unsigned int shaderProgram = LoadShaders("../src/source.vs", "../src/source.fs");
-
     // Read Options
     // ------------
     Options options = ReadOptions("../config.txt");
-    # define INDEXED options.vertexModel == 1
+# define INDEXED options.vertexModel == 1
+# define IS_PHONG options.phong == 1
+
+    // build and compile our shader program
+    // ------------------------------------
+    unsigned int shaderProgram;
+    // Load phong shader
+    if(IS_PHONG)
+        shaderProgram = LoadShaders("../shaders/phongShader.vertex", "../shaders/phongShader.frag");
+    // Load gouraud shader
+    else
+        shaderProgram = LoadShaders("../shaders/gouraudShader.vertex", "../shaders/gouraudShader.frag");
 
     // Create camera
     Camera camera = Camera(

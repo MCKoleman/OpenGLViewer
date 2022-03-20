@@ -53,6 +53,10 @@ Options ReadOptions(std::string fileName)
                 else if (tempParse[0] == "print") {
                     options.print = std::stoi(tempParse[2]);
                 }
+                // Check for phonh
+                else if (tempParse[0] == "phong") {
+                    options.phong = std::stoi(tempParse[2]);
+                }
                 // Check for perspective
                 else if (tempParse[0] == "perspective") {
                     options.isPerspective = std::stoi(tempParse[2]);

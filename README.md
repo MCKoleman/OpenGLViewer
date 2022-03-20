@@ -26,22 +26,56 @@ Should model be drawn in wireframe? [0] No, [1] Yes
 `wireframe = 0`
 Should the model information be printed in the console? [0] No, [1] Yes
 `print = 0`
+Should the model be rendered using Gouraud [0] or Phong [1] shading
+`phong = 0`
+#### Camera options
+cameraStartPos = 0.0 0.0 1.0
+Camera look at direction. This is what the camera looks at by default
+`cameraStartLookAt = 0.0 0.0 0.0`
+Camera up direction. (Only change this if you really know what you're doing)
+`cameraStartUp = 0.0 1.0 0.0`
+Camera field of view (FOV). Only used for the perspective camera
+`cameraFov = 45.0`
+Orthographic camera size. Only used for orthographic camera.
+`cameraSize = 10.0 10.0`
+Camera near clip plane. (Only change this if you know what you're doing)
+`cameraNearClip = 0.1`
+Camera far clip plane. (Only change this if you know what you're doing)
+`cameraFarClip = 100.0`
+Should the camera be in perspective? [1] Yes, [0] No
+`perspective = 1`
 
 ### Program usage:
-Press [W] to move forward
-Press [S] to move back
-Press [D] to move right
-Press [A] to move left
-Press [Space] to move up
-Press [Shift] to move down
-Press [Q] to scale up
-Press [E] to scale down
-Press [Up Arrow] to rotate up
-Press [Down Arrow] to rotate down
-Press [Right Arrow] to rotate right
-Press [Left Arrow] to rotate left
-Press [Alt + Left Mouse Button] to rotate with the mouse
-Press [Esc] to exit the program
+Press `[W]` to move mesh forward
+Press `[S]` to move mesh back
+Press `[D]` to move mesh right
+Press `[A]` to move mesh left
+Press `[Space]` to move mesh up
+Press `[Shift]` to move mesh down
+
+Press `[Ctrl + W]` to move camera forward
+Press `[Ctrl + S]` to move camera back
+Press `[Ctrl + D]` to move camera right
+Press `[Ctrl + A]` to move camera left
+Press `[Ctrl + Space]` to move camera up
+Press `[Ctrl + Shift]` to move camera down
+
+Press `[Q]` to scale mesh up
+Press `[E]` to scale mesh down
+Press `[Up Arrow]` to rotate mesh up
+Press `[Down Arrow]` to rotate mesh down
+Press `[Right Arrow]` to rotate mesh right
+Press `[Left Arrow]` to rotate mesh left
+
+Press `[Ctrl + Up Arrow]` to rotate camera up
+Press `[Ctrl + Down Arrow]` to rotate camera down
+Press `[Ctrl + Right Arrow]` to rotate camera right
+Press `[Ctrl + Left Arrow]` to rotate camera left
+Press `[F]` to focus camera on the mesh
+
+Press `[Alt + Left Mouse Button]` to rotate camera with the mouse
+Press `[Alt + Right Mouse Button]` to move camera with the mouse
+Press `[Esc]` to exit the program
 
 ### Links to libraries:
 http://glew.sourceforge.net/

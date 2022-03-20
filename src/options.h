@@ -10,6 +10,7 @@ struct Options {
 	int vertexModel;
 	int wireframe;
 	int print;
+	int phong;
 
 	// Camera options
 	glm::vec3 camPos;

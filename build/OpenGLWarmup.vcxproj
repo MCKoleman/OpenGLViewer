@@ -405,6 +405,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />
+    <None Include="..\shaders\gouraudShader.frag" />
+    <None Include="..\shaders\gouraudShader.vertex" />
+    <None Include="..\shaders\phongShader.frag" />
+    <None Include="..\shaders\phongShader.vertex" />
     <None Include="..\src\source.fs" />
     <None Include="..\src\source.vs" />
   </ItemGroup>

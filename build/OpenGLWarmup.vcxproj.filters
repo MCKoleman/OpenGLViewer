@@ -115,5 +115,17 @@
     <None Include="..\src\source.vs">
       <Filter>Resources</Filter>
     </None>
+    <None Include="..\shaders\gouraudShader.frag">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\shaders\gouraudShader.vertex">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\shaders\phongShader.frag">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\shaders\phongShader.vertex">
+      <Filter>Resources</Filter>
+    </None>
   </ItemGroup>
 </Project>
